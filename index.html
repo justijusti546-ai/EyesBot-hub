@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>EyesBot Hub - Desk Bot WiFi & Notification Companion</title>
+
+  <!-- Content Security Policy -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self' http://192.168.4.1;
+    script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com;
+    style-src 'self' 'unsafe-inline';
+    font-src 'self' data:;
+    connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com http://192.168.4.1 http://192.168.*;
+    img-src 'self' data: https://lh3.googleusercontent.com https://*.googleusercontent.com;
+    manifest-src 'self';
+  ">
+
+  <!-- PWA & Theme Meta Tags (Relative Paths) -->
+  <meta name="theme-color" content="#0d1117">
+  <meta name="description" content="Manage your ESP32 desk bot Wi-Fi hotspot details safely with client-side encryption and push notifications.">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#home" class="brand" id="brandLogoBtn" aria-label="EyesBot Hub Home">
+        <div class="header-bot-face" aria-hidden="true">
+          <div class="header-bot-eye left"></div>
+          <div class="header-bot-eye right"></div>
+        </div>
+        <span>EyesBot <span class="brand-title-accent">Hub</span></span>
+      </a>
+
+      <!-- Header Right: Auth & User Profile -->
+      <div class="header-actions">
+        <!-- Signed-out button -->
+        <button id="headerSignInBtn" class="btn btn-primary btn-sm">
+          <span>Sign In</span>
+        </button>
+
+        <!-- Signed-in profile container -->
+        <div id="userProfileChip" class="user-profile-badge" style="display: none;">
+          <img id="userAvatarImg" class="user-avatar" alt="User avatar" src="./favicon.svg" />
+          <span id="userNameSpan" class="user-name-text">User</span>
+        </div>
+
+        <button id="headerSignOutBtn" class="btn btn-secondary btn-sm" style="display: none;" title="Sign Out">
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Configuration Notice Banner (Visible when Firebase is in demo/placeholder mode) -->
+  <div class="container" id="configNoticeContainer" style="display: none;">
+    <div class="demo-banner">
+      <div class="demo-banner-content">
+        <span class="icon">✨</span>
+        <div class="demo-banner-text">
+          <strong>Interactive Demo Mode Active</strong>
+          <p>Firebase credentials in <code>firebase-config.js</code> are in placeholder mode. All features, encryption, and wizards are fully functional locally!</p>
+        </div>
+      </div>
+      <button class="btn btn-secondary btn-sm" id="dismissDemoBannerBtn">Got it</button>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <main class="container" style="flex: 1; padding-top: 1rem; padding-bottom: 2rem;">
+
+    <!-- Navigation Tabs (Only visible when signed in) -->
+    <nav class="app-nav-tabs" id="appNavTabs" style="display: none;" aria-label="Main Navigation">
+      <button class="nav-tab-btn active" data-tab="bots">
+        <span>🤖 My Bots</span>
+      </button>
+      <button class="nav-tab-btn" data-tab="wizard-tab">
+        <span>🚀 Send to Bot</span>
+      </button>
+      <button class="nav-tab-btn" data-tab="notifications">
+        <span>🔔 Notification Help</span>
+      </button>
+      <button class="nav-tab-btn" data-tab="account">
+        <span>🛡️ Privacy & Account</span>
+      </button>
+    </nav>
+
+    <!-- ====================================================================
+         VIEW 1: LANDING PAGE (Signed Out)
+         ==================================================================== -->
+    <section id="landingView" class="view-section">
+      <div class="robot-hero-card">
+        <!-- Interactive Robot Face with Glowing Eyes -->
+        <div class="bot-face-stage" id="heroBotFace" title="Tap to make the bot wink!">
+          <div class="bot-antenna">
+            <div class="bot-antenna-light"></div>
+          </div>
+          <div class="bot-chassis">
+            <div class="bot-screen">
+              <div class="robot-eye left"></div>
+              <div class="robot-eye right"></div>
+              <div class="bot-cheek left"></div>
+              <div class="bot-cheek right"></div>
+            </div>
+          </div>
+        </div>
+
+        <h1 style="font-size: 1.85rem; margin-bottom: 0.5rem;">EyesBot Hub</h1>
+        <p style="font-size: 1.05rem; max-width: 520px; margin: 0 auto 1.5rem;">
+          The cute, secure companion for your ESP32 desk bot. Save your phone hotspot details safely and transfer them to your bot in seconds.
+        </p>
+
+        <!-- Big Touch-Friendly Action Buttons -->
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 360px; margin: 0 auto;">
+          <button id="googleSignInHeroBtn" class="btn btn-google btn-lg btn-block">
+            <svg class="google-icon-svg" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            <span>Sign In with Google</span>
+          </button>
+
+          <button id="tryDemoHeroBtn" class="btn btn-secondary btn-lg btn-block">
+            <span>✨ Try Interactive Demo</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Feature Highlights -->
+      <div class="features-grid">
+        <div class="feature-box">
+          <span class="feat-icon">🔒</span>
+          <h3>Zero-Knowledge Security</h3>
+          <p>Your hotspot password is encrypted with 256-bit AES-GCM in your browser before saving. Your passphrase is never stored.</p>
+        </div>
+
+        <div class="feature-box">
+          <span class="feat-icon">🚀</span>
+          <h3>1-Tap Bot Setup</h3>
+          <p>A guided, step-by-step wizard connects your phone to the bot's offline Wi-Fi AP and securely sends credentials.</p>
+        </div>
+
+        <div class="feature-box">
+          <span class="feat-icon">🔔</span>
+          <h3>Desk Notifications</h3>
+          <p>Get live WhatsApp & Instagram notification popups right on your desk bot's OLED screen via Android automation.</p>
+        </div>
+      </div>
+
+      <!-- Security Notice Card -->
+      <div class="card" style="border-left: 4px solid var(--amber-warning);">
+        <h4 style="color: var(--amber-warning); margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.5rem;">
+          <span>⚠️</span> Important Security Notice
+        </h4>
+        <p style="font-size: 0.9rem;">
+          Please <strong>only use your phone's portable hotspot password</strong>. Never enter your Google account password, banking passwords, or primary Wi-Fi network passwords.
+        </p>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VIEW 2: BOTS DASHBOARD (Signed In)
+         ==================================================================== -->
+    <section id="dashboardView" class="view-section" style="display: none;">
+      <!-- Dashboard Top Banner -->
+      <div class="card-header" style="flex-wrap: wrap; margin-bottom: 1.25rem;">
+        <div>
+          <h2>My Desk Bots</h2>
+          <p id="dashboardGreeting" style="font-size: 0.9rem;">Manage your ESP32 desk bots and hotspot settings.</p>
+        </div>
+        <button id="openAddBotModalBtn" class="btn btn-primary btn-md">
+          <span>➕ Add Bot</span>
+        </button>
+      </div>
+
+      <!-- Empty State (When user has no bots) -->
+      <div id="botsEmptyState" class="empty-state" style="display: none;">
+        <div class="empty-state-icon">🤖💤</div>
+        <div class="empty-state-title">No Bots Connected Yet</div>
+        <p style="max-width: 400px; margin: 0 auto 1.5rem;">
+          Save your phone hotspot name and password so you can send them to your ESP32 desk bot anytime.
+        </p>
+        <button id="emptyStateAddBotBtn" class="btn btn-primary btn-lg">
+          <span>➕ Add Your First Bot</span>
+        </button>
+      </div>
+
+      <!-- Bots Grid -->
+      <div id="botsContainer" style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+        <!-- Bot cards are rendered here dynamically -->
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VIEW 3: "SEND TO MY BOT" WIZARD
+         ==================================================================== -->
+    <section id="wizardView" class="view-section" style="display: none;">
+      <div class="wizard-header">
+        <h2>Send to My Bot</h2>
+        <p id="wizardBotTargetName">Step-by-step setup to connect your ESP32 desk bot to your phone hotspot.</p>
+      </div>
+
+      <!-- Stepper Indicator -->
+      <div class="stepper-progress" aria-label="Setup steps">
+        <div class="step-indicator active" id="stepPill1">1</div>
+        <div class="step-indicator" id="stepPill2">2</div>
+        <div class="step-indicator" id="stepPill3">3</div>
+        <div class="step-indicator" id="stepPill4">4</div>
+      </div>
+
+      <!-- Step 1 Card -->
+      <div class="wizard-card" id="wizardStep1">
+        <span class="wizard-step-badge">Step 1 of 4</span>
+        <h3 class="wizard-step-title">Enter Wi-Fi Setup Mode</h3>
+        <p>Take your ESP32 desk bot and activate its setup receiver:</p>
+
+        <div class="wizard-instruction-box">
+          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem;">
+            <div style="font-size: 2.2rem;">👆</div>
+            <div>
+              <strong>Touch Sensor:</strong>
+              <p style="margin: 0;">Touch and hold the metal sensor / touch pin on the bot's head for <strong>3 seconds</strong>.</p>
+            </div>
+          </div>
+          <p style="margin: 0; color: var(--cyan-primary);">
+            ✨ The screen will say: <strong>"WiFi setup mode"</strong> and broadcast an access point named <code>EyesBot-Setup</code>.
+          </p>
+        </div>
+
+        <button class="btn btn-primary btn-lg btn-block" id="goToStep2Btn">
+          <span>I See "WiFi setup mode" ➔ Next</span>
+        </button>
+      </div>
+
+      <!-- Step 2 Card -->
+      <div class="wizard-card" id="wizardStep2" style="display: none;">
+        <span class="wizard-step-badge">Step 2 of 4</span>
+        <h3 class="wizard-step-title">Prepare Credentials in Memory</h3>
+        <p>
+          Because your phone will temporarily lose internet in the next step when connecting to the bot, enter your passphrase now to load the hotspot credentials into browser memory.
+        </p>
+
+        <div class="form-group" style="margin-top: 1.25rem;">
+          <label class="form-label" for="wizardPassphraseInput">
+            Secret Passphrase <span class="req">*</span>
+            <span class="hint">(The passphrase chosen when saving this bot)</span>
+          </label>
+          <div class="input-action-group">
+            <input type="password" id="wizardPassphraseInput" class="form-control" placeholder="Enter passphrase to unlock" autocomplete="current-password" />
+            <div class="group-actions">
+              <button type="button" class="input-action-btn" id="toggleWizardPassBtn" title="Show/Hide">👁️</button>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-warning btn-lg btn-block" id="prepareCredentialsBtn">
+          <span>🔓 Prepare & Load into Memory</span>
+        </button>
+
+        <!-- Preparation Success Box -->
+        <div id="prepSuccessBox" class="wizard-instruction-box" style="display: none; border-color: var(--mint-accent); margin-top: 1.25rem;">
+          <div style="color: var(--mint-accent); font-weight: 700; margin-bottom: 0.35rem;">
+            ✓ Credentials Ready in Offline Memory
+          </div>
+          <p style="margin: 0; font-size: 0.9rem;">
+            Hotspot SSID and password have been decrypted into local RAM. You can safely disconnect from the internet.
+          </p>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem;">
+          <button class="btn btn-secondary btn-block" id="backToStep1Btn">⬅ Back</button>
+          <button class="btn btn-primary btn-block" id="goToStep3Btn" disabled>
+            <span>Next: Connect Wi-Fi ➔</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 3 Card -->
+      <div class="wizard-card" id="wizardStep3" style="display: none;">
+        <span class="wizard-step-badge">Step 3 of 4</span>
+        <h3 class="wizard-step-title">Connect to the Bot's Wi-Fi</h3>
+        <p>Switch your phone's Wi-Fi to the bot's temporary setup network:</p>
+
+        <div class="wizard-instruction-box">
+          <ol>
+            <li>Open your phone's <strong>Wi-Fi Settings</strong>.</li>
+            <li>Connect to the network: <strong style="color: var(--cyan-primary);">EyesBot-Setup</strong> (No password needed).</li>
+            <li>
+              <strong>Crucial:</strong> When your phone warns <em>"No internet connection. Switch to mobile data?"</em>, choose <strong>"Stay Connected"</strong> or <strong>"Keep Wi-Fi"</strong>.
+            </li>
+            <li>Return to this browser tab.</li>
+          </ol>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem;">
+          <button class="btn btn-secondary btn-block" id="backToStep2Btn">⬅ Back</button>
+          <button class="btn btn-primary btn-block btn-lg" id="goToStep4Btn">
+            <span>I'm Connected to EyesBot-Setup ➔</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 4 Card -->
+      <div class="wizard-card" id="wizardStep4" style="display: none;">
+        <span class="wizard-step-badge">Step 4 of 4</span>
+        <h3 class="wizard-step-title">Send to Bot</h3>
+        <p>
+          Tap the big button below to send your hotspot details to the bot. This performs a top-level browser navigation directly to <code>http://192.168.4.1/save</code>.
+        </p>
+
+        <div style="margin: 1.5rem 0;">
+          <button class="btn btn-primary btn-lg btn-block" id="sendToBotFinalBtn" style="font-size: 1.25rem; min-height: 60px;">
+            <span>🚀 Send to Bot (192.168.4.1)</span>
+          </button>
+        </div>
+
+        <div class="wizard-instruction-box" style="border-left: 4px solid var(--mint-accent);">
+          <strong style="color: var(--mint-accent);">What happens next:</strong>
+          <p style="margin: 0.35rem 0 0;">
+            1. The bot saves your credentials to its memory and will immediately restart.<br>
+            2. <strong>Turn on your phone's Portable Hotspot (2.4 GHz band)</strong> now so the bot can connect to it!
+          </p>
+        </div>
+
+        <!-- Manual Fallback Accordion / Card -->
+        <div class="card" style="margin-top: 1.5rem; background: var(--bg-dark); border-color: var(--border-subtle);">
+          <h4 style="font-size: 1rem; margin-bottom: 0.75rem; color: var(--text-primary);">
+            📋 Manual Fallback (If needed)
+          </h4>
+          <p style="font-size: 0.85rem; margin-bottom: 0.75rem;">
+            If the automatic send button doesn't open the page, copy the details below and visit the setup page directly:
+          </p>
+
+          <label class="form-label" style="font-size: 0.8rem;">Hotspot Name (SSID):</label>
+          <div class="copy-box">
+            <code id="fallbackSsidText">--</code>
+            <button class="btn btn-secondary btn-sm" id="copyFallbackSsidBtn">Copy</button>
+          </div>
+
+          <label class="form-label" style="font-size: 0.8rem;">Hotspot Password:</label>
+          <div class="copy-box">
+            <code id="fallbackPassText">••••••••</code>
+            <div style="display: flex; gap: 0.35rem;">
+              <button class="btn btn-secondary btn-sm" id="toggleFallbackPassBtn">Show</button>
+              <button class="btn btn-secondary btn-sm" id="copyFallbackPassBtn">Copy</button>
+            </div>
+          </div>
+
+          <a href="http://192.168.4.1" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-block btn-sm" style="margin-top: 0.5rem;">
+            <span>🌐 Open http://192.168.4.1 Manually</span>
+          </a>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem;">
+          <button class="btn btn-secondary btn-block" id="backToStep3Btn">⬅ Back</button>
+          <button class="btn btn-success btn-block" id="finishWizardBtn">✓ Done / Back to Bots</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VIEW 4: NOTIFICATION HELP PAGE
+         ==================================================================== -->
+    <section id="notificationsView" class="view-section" style="display: none;">
+      <div class="card-header" style="margin-bottom: 1.25rem;">
+        <div>
+          <h2>Desk Bot Notifications</h2>
+          <p>Display live popups on your bot's OLED screen for WhatsApp and Instagram.</p>
+        </div>
+      </div>
+
+      <!-- IP Address Configuration Card -->
+      <div class="card">
+        <h3 class="card-title">1. Your Bot's Local IP Address</h3>
+        <p style="font-size: 0.9rem; margin-bottom: 1rem;">
+          Look at your desk bot's clock screen. The local IP address (e.g. <code>192.168.43.120</code>) is shown at the bottom.
+        </p>
+
+        <div class="form-group" style="margin-bottom: 0.5rem;">
+          <label class="form-label" for="notifyBotIpInput">Bot IP Address</label>
+          <div class="input-action-group">
+            <input type="text" id="notifyBotIpInput" class="form-control" placeholder="e.g. 192.168.43.120" />
+            <div class="group-actions">
+              <button type="button" class="btn btn-primary btn-sm" id="saveIpToBotBtn">Save to Bot</button>
+            </div>
+          </div>
+          <div class="form-hint">Both your phone and bot must be connected to the same Wi-Fi / hotspot.</div>
+        </div>
+      </div>
+
+      <!-- Generated URL Templates -->
+      <div class="card">
+        <h3 class="card-title">2. Generated Webhook URLs</h3>
+        <p style="font-size: 0.9rem; margin-bottom: 1rem;">
+          These are the HTTP GET endpoints your phone's automation app will trigger whenever a message arrives.
+        </p>
+
+        <!-- WhatsApp URL -->
+        <div style="margin-bottom: 1.25rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem;">
+            <strong style="color: #25d366;">WhatsApp Template</strong>
+            <span class="badge badge-cyan">GET</span>
+          </div>
+          <div class="copy-box">
+            <code id="whatsappUrlCode">http://BOT_IP/notify?app=whatsapp&from=NAME&msg=TEXT</code>
+            <button class="btn btn-secondary btn-sm" id="copyWhatsappUrlBtn">Copy</button>
+          </div>
+        </div>
+
+        <!-- Instagram URL -->
+        <div style="margin-bottom: 1.25rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem;">
+            <strong style="color: #e1306c;">Instagram Template</strong>
+            <span class="badge badge-cyan">GET</span>
+          </div>
+          <div class="copy-box">
+            <code id="instagramUrlCode">http://BOT_IP/notify?app=instagram&from=NAME&msg=TEXT</code>
+            <button class="btn btn-secondary btn-sm" id="copyInstagramUrlBtn">Copy</button>
+          </div>
+        </div>
+
+        <!-- MacroDroid Dynamic Variables Card -->
+        <div style="background: var(--bg-dark); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem; margin-top: 1rem;">
+          <strong style="font-size: 0.9rem; display: block; margin-bottom: 0.35rem;">MacroDroid Ready-to-Paste URL:</strong>
+          <div class="copy-box" style="margin-bottom: 0.5rem;">
+            <code id="macrodroidDynamicUrlCode">http://BOT_IP/notify?app=whatsapp&from=[notification_title]&msg=[notification_text]</code>
+            <button class="btn btn-secondary btn-sm" id="copyMacrodroidDynamicUrlBtn">Copy</button>
+          </div>
+          <p style="font-size: 0.8rem; margin: 0; color: var(--text-muted);">
+            MacroDroid automatically replaces <code>[notification_title]</code> with sender name and <code>[notification_text]</code> with the message!
+          </p>
+        </div>
+      </div>
+
+      <!-- Step-by-Step App Setup Guide (MacroDroid & Tasker) -->
+      <div class="card">
+        <h3 class="card-title">3. Setup in MacroDroid (Recommended & Free)</h3>
+        <p style="font-size: 0.9rem; margin-bottom: 1rem;">
+          Follow these 3 easy steps to make your phone alert your bot automatically:
+        </p>
+
+        <div class="wizard-instruction-box">
+          <ol>
+            <li><strong>Install MacroDroid:</strong> Download it free from the Google Play Store.</li>
+            <li><strong>Add Macro:</strong> Tap <em>Add Macro</em> and set name to "EyesBot Notifications".</li>
+            <li><strong>Trigger:</strong> Tap (+), choose <em>Notification</em> ➔ <em>Notification Received</em> ➔ Select <strong>WhatsApp</strong> and/or <strong>Instagram</strong>.</li>
+            <li><strong>Action:</strong> Tap (+), choose <em>Connectivity</em> ➔ <strong>HTTP Request</strong>.
+              <ul style="margin-top: 0.35rem;">
+                <li>Method: <strong>GET</strong></li>
+                <li>URL: Paste the MacroDroid URL copied above.</li>
+              </ul>
+            </li>
+            <li><strong>Save:</strong> Tap the checkmark icon to save. Whenever you receive a message, your desk bot will chirp and show the notification!</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Live Test Tool -->
+      <div class="card">
+        <h3 class="card-title">4. Test Notification</h3>
+        <p style="font-size: 0.9rem; margin-bottom: 1rem;">
+          Test your desk bot right now to see the notification popup on its screen.
+        </p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+          <div>
+            <label class="form-label" for="testSenderInput">From / Sender</label>
+            <input type="text" id="testSenderInput" class="form-control" value="Alex" />
+          </div>
+          <div>
+            <label class="form-label" for="testAppSelect">App</label>
+            <select id="testAppSelect" class="form-control">
+              <option value="whatsapp">WhatsApp</option>
+              <option value="instagram">Instagram</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="testMsgInput">Message Text</label>
+          <input type="text" id="testMsgInput" class="form-control" value="Hello EyesBot! Testing desk notifications." />
+        </div>
+
+        <button class="btn btn-primary btn-block" id="sendLiveTestBtn">
+          <span>🚀 Send Test to Bot Screen</span>
+        </button>
+      </div>
+
+      <!-- Important Platform Limits Notice -->
+      <div class="card" style="border-left: 4px solid var(--blue-primary);">
+        <h4 style="color: var(--cyan-primary); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem;">
+          <span>ℹ️</span> Important Compatibility Notes
+        </h4>
+        <ul style="font-size: 0.88rem; padding-left: 1.25rem; color: var(--text-secondary);">
+          <li><strong>Android Only:</strong> Automation tools like MacroDroid/Tasker can intercept notifications on Android. Apple iOS does not allow background notification interception.</li>
+          <li><strong>ASCII English Only:</strong> The ESP32 OLED screen firmware displays standard English letters and symbols. Emojis and non-English scripts are stripped or not shown.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VIEW 5: PRIVACY & ACCOUNT SETTINGS
+         ==================================================================== -->
+    <section id="accountView" class="view-section" style="display: none;">
+      <div class="card-header" style="margin-bottom: 1.25rem;">
+        <div>
+          <h2>Privacy & Account</h2>
+          <p>Your data ownership and zero-knowledge encryption safeguards.</p>
+        </div>
+      </div>
+
+      <!-- Security Guarantee Card -->
+      <div class="card">
+        <h3 class="card-title">🔐 Zero-Knowledge Security</h3>
+        <p style="font-size: 0.92rem; margin-bottom: 1rem;">
+          EyesBot Hub is designed with privacy-first client-side cryptography:
+        </p>
+        <ul style="font-size: 0.9rem; padding-left: 1.25rem; margin-bottom: 1rem; color: var(--text-secondary);">
+          <li>Hotspot passwords are encrypted with <strong>AES-GCM (256-bit)</strong> directly in your browser.</li>
+          <li>The encryption key is derived using <strong>PBKDF2 with SHA-256 and 250,000 rounds</strong> from your secret passphrase.</li>
+          <li><strong>Your secret passphrase is never sent over the network or saved anywhere.</strong> Only you can unlock your password.</li>
+          <li>Hosted free with HTTPS encryption on GitHub Pages. No third-party analytics or trackers.</li>
+        </ul>
+
+        <div class="wizard-instruction-box" style="border-left: 4px solid var(--amber-warning); margin-bottom: 0;">
+          <strong style="color: var(--amber-warning);">Reminder:</strong>
+          <p style="margin: 0.25rem 0 0; font-size: 0.88rem;">
+            Only store your phone's Wi-Fi hotspot password. Never store banking credentials, master passwords, or primary Wi-Fi keys.
+          </p>
+        </div>
+      </div>
+
+      <!-- User Profile Card -->
+      <div class="card">
+        <h3 class="card-title">User Account</h3>
+        <div style="display: flex; align-items: center; gap: 1rem; margin: 1rem 0;">
+          <img id="accountAvatarImg" class="user-avatar" style="width: 56px; height: 56px;" src="./favicon.svg" alt="Avatar" />
+          <div>
+            <div id="accountDisplayName" style="font-size: 1.2rem; font-weight: 700;">Signed-in User</div>
+            <div id="accountEmailText" style="color: var(--text-muted); font-size: 0.9rem;">user@example.com</div>
+          </div>
+        </div>
+
+        <button id="accountSignOutBtn" class="btn btn-secondary btn-block">
+          <span>Sign Out</span>
+        </button>
+      </div>
+
+      <!-- Danger Zone: Delete Account & Data -->
+      <div class="card" style="border-color: rgba(244, 63, 94, 0.4); background: rgba(244, 63, 94, 0.05);">
+        <h3 class="card-title" style="color: #fb7185;">⚠️ Danger Zone</h3>
+        <p style="font-size: 0.9rem; margin-bottom: 1rem;">
+          Permanently delete all your saved desk bot configurations from Firestore and delete your authentication account. This action cannot be undone.
+        </p>
+
+        <button id="deleteAccountAndDataBtn" class="btn btn-danger btn-block">
+          <span>🗑️ Delete My Data and Account</span>
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======================================================================
+       MODAL: ADD / EDIT BOT
+       ====================================================================== -->
+  <div class="modal-backdrop" id="botFormModal" role="dialog" aria-modal="true" aria-labelledby="botFormModalTitle">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="botFormModalTitle">Add New Desk Bot</h3>
+        <button type="button" class="modal-close" id="closeBotModalBtn" aria-label="Close dialog">&times;</button>
+      </div>
+
+      <form id="botModalForm">
+        <div class="modal-body">
+          <input type="hidden" id="botModalEditId" value="" />
+
+          <!-- Bot Name -->
+          <div class="form-group">
+            <label class="form-label" for="botModalName">
+              Bot Name <span class="req">*</span>
+            </label>
+            <input type="text" id="botModalName" class="form-control" placeholder="e.g. Desk Robot 1" required maxlength="30" />
+          </div>
+
+          <!-- Hotspot SSID -->
+          <div class="form-group">
+            <label class="form-label" for="botModalSsid">
+              Phone Hotspot Name (SSID) <span class="req">*</span>
+            </label>
+            <input type="text" id="botModalSsid" class="form-control" placeholder="e.g. MyPhone-Hotspot" required maxlength="32" />
+            <div class="form-hint">Make sure your phone hotspot is set to 2.4 GHz band.</div>
+          </div>
+
+          <!-- Hotspot Password -->
+          <div class="form-group">
+            <label class="form-label" for="botModalPassword">
+              Hotspot Password <span class="req">*</span>
+            </label>
+            <div class="input-action-group">
+              <input type="password" id="botModalPassword" class="form-control" placeholder="Hotspot Wi-Fi password" required minlength="8" maxlength="63" />
+              <div class="group-actions">
+                <button type="button" class="input-action-btn" id="toggleBotModalPassBtn" title="Show/Hide">👁️</button>
+              </div>
+            </div>
+            <div class="form-hint">Encrypted locally with AES-GCM before saving.</div>
+          </div>
+
+          <!-- Passphrase to Lock -->
+          <div class="form-group">
+            <label class="form-label" for="botModalPassphrase">
+              Secret Passphrase <span class="req">*</span>
+              <span class="hint">(Never stored anywhere)</span>
+            </label>
+            <div class="input-action-group">
+              <input type="password" id="botModalPassphrase" class="form-control" placeholder="Choose a passphrase to lock/unlock" required minlength="4" />
+              <div class="group-actions">
+                <button type="button" class="input-action-btn" id="toggleBotModalPassphraseBtn" title="Show/Hide">👁️</button>
+              </div>
+            </div>
+            <div class="form-hint">You will enter this passphrase whenever sending or viewing credentials.</div>
+          </div>
+
+          <!-- Optional Bot IP Address -->
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="botModalIp">
+              Bot IP Address <span class="hint">(Optional)</span>
+            </label>
+            <input type="text" id="botModalIp" class="form-control" placeholder="e.g. 192.168.43.120" pattern="^([0-9]{1,3}\.){3}[0-9]{1,3}$" />
+            <div class="form-hint">Found at the bottom of the bot's clock screen.</div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancelBotModalBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveBotModalSubmitBtn">
+            <span>🔒 Encrypt & Save Bot</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL: DECRYPT / VIEW PASSWORD
+       ====================================================================== -->
+  <div class="modal-backdrop" id="decryptModal" role="dialog" aria-modal="true" aria-labelledby="decryptModalTitle">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="decryptModalTitle">Unlock Hotspot Password</h3>
+        <button type="button" class="modal-close" id="closeDecryptModalBtn" aria-label="Close dialog">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p style="font-size: 0.9rem; margin-bottom: 1rem;">
+          Enter your secret passphrase to decrypt and view the hotspot password for <strong id="decryptModalBotName">this bot</strong>.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label" for="decryptPassphraseInput">Secret Passphrase</label>
+          <div class="input-action-group">
+            <input type="password" id="decryptPassphraseInput" class="form-control" placeholder="Enter secret passphrase" />
+            <div class="group-actions">
+              <button type="button" class="input-action-btn" id="toggleDecryptPassphraseEyeBtn">👁️</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Decrypted Result Display -->
+        <div id="decryptedResultBox" style="display: none; margin-top: 1rem;">
+          <label class="form-label">Plaintext Hotspot Password:</label>
+          <div class="copy-box">
+            <code id="decryptedPasswordText">••••••••</code>
+            <div style="display: flex; gap: 0.35rem;">
+              <button class="btn btn-secondary btn-sm" id="toggleShowDecryptedBtn">Show</button>
+              <button class="btn btn-primary btn-sm" id="copyDecryptedBtn">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="closeDecryptActionBtn">Close</button>
+        <button type="button" class="btn btn-primary" id="submitDecryptBtn">
+          <span>🔓 Decrypt</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL: DELETE ACCOUNT CONFIRMATION
+       ====================================================================== -->
+  <div class="modal-backdrop" id="deleteAccountModal" role="dialog" aria-modal="true" aria-labelledby="deleteAccountModalTitle">
+    <div class="modal-content" style="border-color: var(--rose-danger);">
+      <div class="modal-header">
+        <h3 class="modal-title" id="deleteAccountModalTitle" style="color: #fb7185;">Confirm Account Deletion</h3>
+        <button type="button" class="modal-close" id="closeDeleteAccountModalBtn" aria-label="Close dialog">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p style="margin-bottom: 1rem;">
+          Are you sure you want to permanently delete your account and all saved bot profiles?
+        </p>
+        <div class="wizard-instruction-box" style="border-color: rgba(244, 63, 94, 0.4); background: rgba(244, 63, 94, 0.08); color: #fecdd3;">
+          This will wipe all documents under <code>users/{uid}/bots</code> in Firestore and remove your Google login profile from EyesBot Hub.
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="cancelDeleteAccountBtn">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteAccountBtn">
+          <span>Yes, Delete Everything</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification System -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-links">
+        <a href="#home" id="footerHomeLink">EyesBot Hub</a>
+        <a href="#notifications" id="footerNotifyLink">Notification Help</a>
+        <a href="#privacy" id="footerPrivacyLink">Privacy Policy</a>
+        <a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+      <p>Made with 🤖 for ESP32 Desk Bots. Zero-knowledge browser encryption.</p>
+    </div>
+  </footer>
+
+  <!-- Main ES Module Script (Relative Path) -->
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
