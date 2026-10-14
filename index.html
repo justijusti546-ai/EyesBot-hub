@@ -5,40 +5,161 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <title>EyesBot Hub - Desk Bot WiFi & Notification Companion</title>
 
-  <!-- Content Security Policy -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https:; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com http://192.168.4.1 http://192.168.*; img-src 'self' data: https: https://lh3.googleusercontent.com; manifest-src 'self';">
+  <!-- Clean Content Security Policy -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https:; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com http://192.168.4.1 http://192.168.*; img-src 'self' data: https: https://lh3.googleusercontent.com;">
 
-  <!-- PWA & Theme Meta Tags -->
   <meta name="theme-color" content="#0d1117">
   <meta name="description" content="Manage your ESP32 desk bot Wi-Fi hotspot details safely with client-side encryption and push notifications.">
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="style.css">
 
-  <!-- Core Fallback Styles (Guarantees Dark Theme & Sizing even if external CSS loading is delayed) -->
+  <!-- Inline Scalable SVG Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Crect x='14' y='20' width='100' height='88' rx='28' fill='%231a252f' stroke='%233a4b60' stroke-width='4'/%3E%3Crect x='24' y='30' width='80' height='68' rx='20' fill='%230a0f16'/%3E%3Crect x='36' y='48' width='18' height='28' rx='9' fill='%2300f0ff'/%3E%3Crect x='74' y='48' width='18' height='28' rx='9' fill='%2300f0ff'/%3E%3Ccircle cx='41' cy='54' r='3.5' fill='%23fff'/%3E%3Ccircle cx='79' cy='54' r='3.5' fill='%23fff'/%3E%3C/svg%3E">
+
+  <!-- ======================================================================
+       COMPLETE STYLESHEET (DARK CYBER THEME & TOUCH-FRIENDLY UI)
+       ====================================================================== -->
   <style>
     :root {
       --bg-dark: #0a0e17;
       --bg-card: #121824;
+      --bg-card-hover: #182232;
+      --bg-input: #1a2230;
+      --bg-elevated: #1e2838;
+      --border-subtle: #243044;
+      --border-bright: #3b4d6a;
+      --border-focus: #00f0ff;
       --text-primary: #f0f6fc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
       --cyan-primary: #00f0ff;
+      --cyan-glow: rgba(0, 240, 255, 0.35);
+      --blue-primary: #3b82f6;
+      --mint-accent: #10b981;
+      --mint-glow: rgba(16, 185, 129, 0.3);
+      --amber-warning: #f59e0b;
+      --amber-glow: rgba(245, 158, 11, 0.3);
+      --rose-danger: #f43f5e;
+      --font-main: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --touch-target-min: 48px;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
     }
-    body {
-      background-color: #0a0e17;
-      color: #f0f6fc;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+    *, *::before, *::after {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
+      -webkit-tap-highlight-color: transparent;
     }
-    .google-icon-svg {
-      width: 20px !important;
-      height: 20px !important;
-      min-width: 20px !important;
-      max-width: 20px !important;
-      flex-shrink: 0;
-      display: inline-block;
-      vertical-align: middle;
+
+    body {
+      font-family: var(--font-main);
+      background-color: var(--bg-dark);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 40%);
+      background-attachment: fixed;
     }
+
+    h1, h2, h3, h4 { color: var(--text-primary); font-weight: 700; line-height: 1.25; }
+    p { color: var(--text-secondary); }
+    a { color: var(--cyan-primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, pre { font-family: var(--font-mono); }
+
+    .container { width: 100%; max-width: 900px; margin: 0 auto; padding: 0 1rem; }
+
+    /* Site Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background-color: rgba(10, 14, 23, 0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.75rem 0;
+    }
+    .header-inner { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+    .brand { display: flex; align-items: center; gap: 0.65rem; font-size: 1.15rem; font-weight: 800; color: var(--text-primary); }
+    .brand-title-accent { color: var(--cyan-primary); text-shadow: 0 0 12px var(--cyan-glow); }
+    .header-bot-face {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 2px solid #334155;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+    }
+    .header-bot-eye {
+      width: 6px; height: 12px;
+      background-color: var(--cyan-primary);
+      border-radius: 3px;
+      box-shadow: 0 0 8px var(--cyan-primary);
+      animation: svgEyeBlink 4s infinite;
+    }
+
+    .header-actions { display: flex; align-items: center; gap: 0.5rem; }
+    .user-profile-badge {
+      display: flex; align-items: center; gap: 0.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      padding: 0.25rem 0.75rem 0.25rem 0.3rem;
+      font-size: 0.85rem;
+      max-width: 170px;
+    }
+    .user-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--cyan-primary); }
+    .user-name-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* Nav Tabs */
+    .app-nav-tabs {
+      display: flex; gap: 0.35rem; padding: 0.5rem 0; overflow-x: auto;
+      border-bottom: 1px solid var(--border-subtle); margin-bottom: 1.25rem;
+    }
+    .nav-tab-btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.55rem 1rem; border-radius: var(--radius-full);
+      font-size: 0.9rem; font-weight: 600; border: 1px solid transparent;
+      background: transparent; color: var(--text-secondary); cursor: pointer;
+    }
+    .nav-tab-btn.active {
+      color: var(--cyan-primary); background: rgba(0, 240, 255, 0.1);
+      border-color: rgba(0, 240, 255, 0.3);
+    }
+
+    /* Demo Banner */
+    .demo-banner {
+      background: linear-gradient(90deg, rgba(245, 158, 11, 0.15), rgba(59, 130, 246, 0.15));
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1.15rem; margin: 1rem 0;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      font-size: 0.88rem;
+    }
+    .demo-banner strong { display: block; color: #fff; }
+    .demo-banner p { color: #cbd5e1; font-size: 0.82rem; }
+
+    /* Hero Robot Face & Animations */
+    .robot-hero-card {
+      background: linear-gradient(180deg, #151f2e, #0d141e);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 2rem 1.5rem; text-align: center;
+      position: relative; overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      margin: 1.5rem 0 2rem;
+    }
+    .bot-face-stage { display: inline-block; cursor: pointer; transition: transform 0.25s ease; }
+    .bot-face-stage:hover { transform: translateY(-3px) scale(1.03); }
+
     @keyframes svgEyeBlink {
       0%, 93%, 97%, 100% { transform: scaleY(1); }
       95% { transform: scaleY(0.1); }
@@ -46,7 +167,108 @@
     .svg-eye {
       transform-origin: 50% 55%;
       animation: svgEyeBlink 4.2s infinite ease-in-out;
+      transition: fill 0.3s ease, height 0.2s ease;
     }
+    .antenna-light { animation: pulseAntenna 2s infinite ease-in-out; }
+    @keyframes pulseAntenna {
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 1; filter: drop-shadow(0 0 10px #00f0ff); }
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem;
+      min-height: var(--touch-target-min); padding: 0.75rem 1.4rem;
+      border-radius: var(--radius-md); font-size: 1rem; font-weight: 600;
+      cursor: pointer; border: 1px solid transparent; transition: all 0.15s ease;
+      text-decoration: none; user-select: none;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: linear-gradient(135deg, #00f0ff, #00b4d8); color: #061019; font-weight: 700; box-shadow: 0 4px 14px var(--cyan-glow); }
+    .btn-secondary { background-color: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-bright); }
+    .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; }
+    .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); color: #0d1117; }
+    .btn-danger { background-color: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.35); }
+    .btn-block { width: 100%; }
+    .btn-lg { min-height: 54px; font-size: 1.1rem; }
+    .btn-sm { min-height: 38px; font-size: 0.85rem; padding: 0.4rem 0.85rem; }
+    .btn-google { background-color: #ffffff; color: #1f2937; font-weight: 600; }
+
+    /* SVG icon width constraint */
+    .google-icon-svg {
+      width: 20px !important; height: 20px !important;
+      min-width: 20px !important; max-width: 20px !important;
+      flex-shrink: 0; display: inline-block; vertical-align: middle;
+    }
+
+    /* Forms */
+    .form-group { margin-bottom: 1.25rem; text-align: left; }
+    .form-label { display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 0.45rem; }
+    .form-control {
+      width: 100%; min-height: var(--touch-target-min);
+      background-color: var(--bg-input); border: 1.5px solid var(--border-subtle);
+      border-radius: var(--radius-md); padding: 0.75rem 1rem;
+      color: var(--text-primary); font-size: 1rem;
+    }
+    .form-control:focus { outline: none; border-color: var(--border-focus); }
+    .input-action-group { position: relative; display: flex; align-items: center; }
+    .input-action-group .form-control { padding-right: 4.5rem; }
+    .input-action-group .group-actions { position: absolute; right: 6px; display: flex; align-items: center; }
+    .input-action-btn { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; padding: 8px; font-size: 1rem; }
+
+    /* Cards & Badges */
+    .card { background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.25rem; }
+    .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .card-title { font-size: 1.2rem; font-weight: 700; }
+    .badge { display: inline-flex; padding: 0.25rem 0.65rem; border-radius: var(--radius-full); font-size: 0.78rem; font-weight: 600; }
+    .badge-cyan { background: rgba(0, 240, 255, 0.12); color: var(--cyan-primary); }
+    .badge-mint { background: rgba(16, 185, 129, 0.12); color: #34d399; }
+    .badge-amber { background: rgba(245, 158, 11, 0.12); color: #fbbf24; }
+    .badge-gray { background: rgba(148, 163, 184, 0.12); color: var(--text-secondary); }
+
+    /* Wizard Stepper */
+    .stepper-progress { display: flex; align-items: center; justify-content: space-between; margin: 1.5rem 0 2rem; }
+    .step-indicator {
+      width: 42px; height: 42px; border-radius: 50%; background: var(--bg-card);
+      border: 2px solid var(--border-bright); color: var(--text-muted);
+      display: flex; align-items: center; justify-content: center; font-weight: 700;
+    }
+    .step-indicator.active { background: var(--cyan-primary); color: #050d15; border-color: var(--cyan-primary); box-shadow: 0 0 16px var(--cyan-primary); }
+    .step-indicator.completed { background: var(--mint-accent); color: #ffffff; }
+
+    .wizard-card { background: var(--bg-card); border: 1px solid var(--border-bright); border-radius: var(--radius-lg); padding: 1.75rem 1.25rem; margin-bottom: 1.5rem; }
+    .wizard-step-badge { display: inline-block; background: rgba(0, 240, 255, 0.12); color: var(--cyan-primary); font-size: 0.8rem; font-weight: 700; padding: 0.3rem 0.75rem; border-radius: var(--radius-full); margin-bottom: 0.75rem; }
+    .copy-box { background: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.75rem; word-break: break-all; }
+    .copy-box code { color: var(--cyan-primary); font-size: 0.9rem; }
+
+    /* Modals */
+    .modal-backdrop {
+      position: fixed; inset: 0; background-color: rgba(5, 8, 14, 0.82);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      z-index: 100; display: flex; align-items: center; justify-content: center;
+      padding: 1rem; opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+    }
+    .modal-backdrop.open { opacity: 1; pointer-events: auto; }
+    .modal-content { background: var(--bg-card); border: 1px solid var(--border-bright); border-radius: var(--radius-lg); width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-subtle); }
+    .modal-close { background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.5rem; }
+    .modal-body { padding: 1.5rem; }
+    .modal-footer { display: flex; align-items: center; justify-content: flex-end; gap: 0.75rem; padding: 1rem 1.5rem; border-top: 1px solid var(--border-subtle); }
+
+    /* Toasts */
+    .toast-container { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); z-index: 200; display: flex; flex-direction: column; gap: 0.5rem; width: 90%; max-width: 400px; }
+    .toast { background: #182234; border: 1px solid var(--border-bright); color: var(--text-primary); padding: 0.85rem 1.25rem; border-radius: var(--radius-md); font-size: 0.92rem; display: flex; align-items: center; gap: 0.65rem; opacity: 0; transform: translateY(20px); transition: all 0.25s ease; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.toast-success { border-color: rgba(16, 185, 129, 0.6); background: #0f2720; }
+    .toast.toast-error { border-color: rgba(244, 63, 94, 0.6); background: #2a1219; }
+
+    .features-grid { display: grid; grid-template-columns: 1fr; gap: 1.25rem; margin: 2rem 0; }
+    @media (min-width: 640px) { .features-grid { grid-template-columns: repeat(3, 1fr); } }
+    .feature-box { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.4rem; text-align: center; }
+    .feature-box .feat-icon { font-size: 2.2rem; margin-bottom: 0.85rem; display: inline-block; }
+
+    .site-footer { margin-top: auto; border-top: 1px solid var(--border-subtle); padding: 2rem 0; text-align: center; font-size: 0.85rem; color: var(--text-muted); }
+    .footer-links { display: flex; justify-content: center; gap: 1.25rem; margin-bottom: 0.75rem; }
   </style>
 </head>
 <body>
@@ -64,60 +286,45 @@
 
       <!-- Header Right: Auth & User Profile -->
       <div class="header-actions">
-        <button id="headerSignInBtn" class="btn btn-primary btn-sm">
-          <span>Sign In</span>
-        </button>
+        <button id="headerSignInBtn" class="btn btn-primary btn-sm">Sign In</button>
 
         <div id="userProfileChip" class="user-profile-badge" style="display: none;">
-          <img id="userAvatarImg" class="user-avatar" alt="User avatar" src="favicon.svg" />
+          <img id="userAvatarImg" class="user-avatar" alt="Avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%2300f0ff'/%3E%3C/svg%3E" />
           <span id="userNameSpan" class="user-name-text">User</span>
         </div>
 
-        <button id="headerSignOutBtn" class="btn btn-secondary btn-sm" style="display: none;" title="Sign Out">
-          <span>Sign Out</span>
-        </button>
+        <button id="headerSignOutBtn" class="btn btn-secondary btn-sm" style="display: none;">Sign Out</button>
       </div>
     </div>
   </header>
 
-  <!-- Configuration Notice Banner (Visible when Firebase is in demo mode) -->
+  <!-- Demo Notice Banner -->
   <div class="container" id="configNoticeContainer" style="display: none;">
     <div class="demo-banner">
-      <div class="demo-banner-content">
-        <span class="icon">✨</span>
-        <div class="demo-banner-text">
-          <strong>Interactive Demo Mode Active</strong>
-          <p>Firebase credentials in <code>firebase-config.js</code> are placeholders. You can test all features and encryption locally!</p>
-        </div>
+      <div>
+        <strong>✨ Interactive Demo Mode Active</strong>
+        <p>Firebase credentials in <code>firebase-config.js</code> are in placeholder mode. All features & encryption work locally!</p>
       </div>
       <button class="btn btn-secondary btn-sm" id="dismissDemoBannerBtn">Got it</button>
     </div>
   </div>
 
-  <!-- Main Content Area -->
+  <!-- Main Container -->
   <main class="container" style="flex: 1; padding-top: 1rem; padding-bottom: 2rem;">
 
     <!-- Navigation Tabs (Visible when signed in) -->
-    <nav class="app-nav-tabs" id="appNavTabs" style="display: none;" aria-label="Main Navigation">
-      <button class="nav-tab-btn active" data-tab="bots">
-        <span>🤖 My Bots</span>
-      </button>
-      <button class="nav-tab-btn" data-tab="wizard-tab">
-        <span>🚀 Send to Bot</span>
-      </button>
-      <button class="nav-tab-btn" data-tab="notifications">
-        <span>🔔 Notification Help</span>
-      </button>
-      <button class="nav-tab-btn" data-tab="account">
-        <span>🛡️ Privacy & Account</span>
-      </button>
+    <nav class="app-nav-tabs" id="appNavTabs" style="display: none;">
+      <button class="nav-tab-btn active" data-tab="bots">🤖 My Bots</button>
+      <button class="nav-tab-btn" data-tab="wizard-tab">🚀 Send to Bot</button>
+      <button class="nav-tab-btn" data-tab="notifications">🔔 Notification Help</button>
+      <button class="nav-tab-btn" data-tab="account">🛡️ Privacy & Account</button>
     </nav>
 
-    <!-- VIEW 1: LANDING PAGE (Signed Out) -->
-    <section id="landingView" class="view-section">
+    <!-- VIEW 1: LANDING PAGE -->
+    <section id="landingView">
       <div class="robot-hero-card">
-        <!-- Scalable SVG Robot Face with Glowing Cyan Eyes -->
-        <div class="bot-face-stage" id="heroBotFace" title="Tap to make the bot react!" style="cursor: pointer;">
+        <!-- Scalable Interactive SVG Robot Eyes -->
+        <div class="bot-face-stage" id="heroBotFace" title="Tap the bot to change its eyes!">
           <svg id="robotHeroSvg" viewBox="0 0 200 160" width="180" height="144" style="display: block; margin: 0 auto; filter: drop-shadow(0 12px 28px rgba(0,0,0,0.6));">
             <defs>
               <radialGradient id="screenGradHero" cx="50%" cy="40%" r="60%">
@@ -148,11 +355,11 @@
             <rect x="34" y="38" width="132" height="98" rx="26" fill="url(#screenGradHero)" stroke="#0d1117" stroke-width="2" />
 
             <!-- Glowing Robot Eyes -->
-            <g filter="url(#neonGlowHero)" class="bot-eyes-group">
+            <g filter="url(#neonGlowHero)">
               <rect id="svgEyeLeft" x="55" y="66" width="30" height="46" rx="14" fill="#00f0ff" class="svg-eye" />
               <rect id="svgEyeRight" x="115" y="66" width="30" height="46" rx="14" fill="#00f0ff" class="svg-eye" />
-              <circle id="svgHighlightLeft" cx="63" cy="76" r="5" fill="#ffffff" />
-              <circle id="svgHighlightRight" cx="123" cy="76" r="5" fill="#ffffff" />
+              <circle cx="63" cy="76" r="5" fill="#ffffff" />
+              <circle cx="123" cy="76" r="5" fill="#ffffff" />
             </g>
 
             <!-- Cheeks -->
@@ -163,13 +370,12 @@
 
         <h1 style="font-size: 1.85rem; margin-bottom: 0.5rem;">EyesBot Hub</h1>
         <p style="font-size: 1.05rem; max-width: 520px; margin: 0 auto 1.5rem;">
-          The cute, secure companion for your ESP32 desk bot. Save your phone hotspot details safely and transfer them to your bot in seconds.
+          The cute, secure companion for your ESP32 desk bot. Save your phone hotspot details safely and transfer them in seconds.
         </p>
 
-        <!-- Big Touch Buttons -->
         <div style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 360px; margin: 0 auto;">
           <button id="googleSignInHeroBtn" class="btn btn-google btn-lg btn-block">
-            <svg class="google-icon-svg" viewBox="0 0 24 24" width="20" height="20" style="width: 20px; height: 20px; min-width: 20px; flex-shrink: 0;">
+            <svg class="google-icon-svg" viewBox="0 0 24 24" width="20" height="20">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
               <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
@@ -184,72 +390,60 @@
         </div>
       </div>
 
-      <!-- Feature Grid -->
       <div class="features-grid">
         <div class="feature-box">
           <span class="feat-icon">🔒</span>
           <h3>Zero-Knowledge Security</h3>
-          <p>Your hotspot password is encrypted with 256-bit AES-GCM in your browser before saving. Your passphrase is never stored.</p>
+          <p>Your hotspot password is encrypted with 256-bit AES-GCM before saving. Your passphrase is never stored.</p>
         </div>
-
         <div class="feature-box">
           <span class="feat-icon">🚀</span>
           <h3>1-Tap Bot Setup</h3>
-          <p>A guided, step-by-step wizard connects your phone to the bot's offline Wi-Fi AP and securely sends credentials.</p>
+          <p>Guided wizard connects your phone to the bot's offline Wi-Fi AP and securely sends credentials.</p>
         </div>
-
         <div class="feature-box">
           <span class="feat-icon">🔔</span>
           <h3>Desk Notifications</h3>
-          <p>Get live WhatsApp & Instagram notification popups right on your desk bot's OLED screen via Android automation.</p>
+          <p>Get live WhatsApp & Instagram notification popups right on your desk bot's OLED screen.</p>
         </div>
       </div>
 
-      <!-- Security Notice Card -->
       <div class="card" style="border-left: 4px solid var(--amber-warning);">
-        <h4 style="color: var(--amber-warning); margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.5rem;">
-          <span>⚠️</span> Important Security Notice
-        </h4>
+        <h4 style="color: var(--amber-warning); margin-bottom: 0.35rem;">⚠️ Important Security Notice</h4>
         <p style="font-size: 0.9rem;">
-          Please <strong>only use your phone's portable hotspot password</strong>. Never enter your Google account password, banking passwords, or primary Wi-Fi network passwords.
+          Please <strong>only use your phone's portable hotspot password</strong>. Never enter your Google account password, banking passwords, or primary Wi-Fi passwords.
         </p>
       </div>
     </section>
 
-    <!-- VIEW 2: BOTS DASHBOARD (Signed In) -->
-    <section id="dashboardView" class="view-section" style="display: none;">
-      <div class="card-header" style="flex-wrap: wrap; margin-bottom: 1.25rem;">
+    <!-- VIEW 2: BOTS DASHBOARD -->
+    <section id="dashboardView" style="display: none;">
+      <div class="card-header">
         <div>
           <h2>My Desk Bots</h2>
-          <p id="dashboardGreeting" style="font-size: 0.9rem;">Manage your ESP32 desk bots and hotspot settings.</p>
+          <p style="font-size: 0.9rem;">Manage your ESP32 desk bots and hotspot settings.</p>
         </div>
-        <button id="openAddBotModalBtn" class="btn btn-primary btn-md">
-          <span>➕ Add Bot</span>
-        </button>
+        <button id="openAddBotModalBtn" class="btn btn-primary btn-md">➕ Add Bot</button>
       </div>
 
-      <div id="botsEmptyState" class="empty-state" style="display: none;">
-        <div class="empty-state-icon">🤖💤</div>
-        <div class="empty-state-title">No Bots Connected Yet</div>
-        <p style="max-width: 400px; margin: 0 auto 1.5rem;">
-          Save your phone hotspot name and password so you can send them to your ESP32 desk bot anytime.
-        </p>
-        <button id="emptyStateAddBotBtn" class="btn btn-primary btn-lg">
-          <span>➕ Add Your First Bot</span>
-        </button>
+      <div id="botsEmptyState" style="display: none; text-align: center; padding: 3rem 1.5rem; border: 2px dashed var(--border-subtle); border-radius: var(--radius-lg);">
+        <div style="font-size: 3rem;">🤖💤</div>
+        <h3>No Bots Connected Yet</h3>
+        <p style="margin: 0.5rem 0 1.5rem;">Save your phone hotspot details so you can send them to your bot anytime.</p>
+        <button id="emptyStateAddBotBtn" class="btn btn-primary btn-lg">➕ Add Your First Bot</button>
       </div>
 
       <div id="botsContainer" style="display: grid; grid-template-columns: 1fr; gap: 1rem;"></div>
     </section>
 
-    <!-- VIEW 3: "SEND TO MY BOT" WIZARD -->
-    <section id="wizardView" class="view-section" style="display: none;">
-      <div class="wizard-header">
+    <!-- VIEW 3: WIZARD -->
+    <section id="wizardView" style="display: none;">
+      <div style="text-align: center; margin-bottom: 1.5rem;">
         <h2>Send to My Bot</h2>
-        <p id="wizardBotTargetName">Step-by-step setup to connect your ESP32 desk bot to your phone hotspot.</p>
+        <p id="wizardBotTargetName">Connect your ESP32 desk bot to your phone hotspot.</p>
       </div>
 
-      <div class="stepper-progress" aria-label="Setup steps">
+      <div class="stepper-progress">
         <div class="step-indicator active" id="stepPill1">1</div>
         <div class="step-indicator" id="stepPill2">2</div>
         <div class="step-indicator" id="stepPill3">3</div>
@@ -259,54 +453,30 @@
       <!-- Step 1 -->
       <div class="wizard-card" id="wizardStep1">
         <span class="wizard-step-badge">Step 1 of 4</span>
-        <h3 class="wizard-step-title">Enter Wi-Fi Setup Mode</h3>
-        <p>Take your ESP32 desk bot and activate its setup receiver:</p>
-        <div class="wizard-instruction-box">
-          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem;">
-            <div style="font-size: 2.2rem;">👆</div>
-            <div>
-              <strong>Touch Sensor:</strong>
-              <p style="margin: 0;">Touch and hold the touch sensor on the bot's head for <strong>3 seconds</strong>.</p>
-            </div>
-          </div>
-          <p style="margin: 0; color: var(--cyan-primary);">
-            ✨ The screen will say: <strong>"WiFi setup mode"</strong> and broadcast an access point named <code>EyesBot-Setup</code>.
-          </p>
-        </div>
-        <button class="btn btn-primary btn-lg btn-block" id="goToStep2Btn">
-          <span>I See "WiFi setup mode" ➔ Next</span>
-        </button>
+        <h3>Enter Wi-Fi Setup Mode</h3>
+        <p style="margin: 0.75rem 0;">
+          Touch and hold the touch sensor on the bot's head for <strong>3 seconds</strong> until the screen says: <strong>"WiFi setup mode"</strong>.
+        </p>
+        <button class="btn btn-primary btn-lg btn-block" id="goToStep2Btn">I See "WiFi setup mode" ➔ Next</button>
       </div>
 
       <!-- Step 2 -->
       <div class="wizard-card" id="wizardStep2" style="display: none;">
         <span class="wizard-step-badge">Step 2 of 4</span>
-        <h3 class="wizard-step-title">Prepare Credentials in Memory</h3>
-        <p>
-          Because your phone will lose internet in the next step when connecting to the bot, enter your passphrase now to load credentials into memory.
-        </p>
-        <div class="form-group" style="margin-top: 1.25rem;">
-          <label class="form-label" for="wizardPassphraseInput">
-            Secret Passphrase <span class="req">*</span>
-            <span class="hint">(The passphrase chosen when saving this bot)</span>
-          </label>
+        <h3>Prepare Credentials in Memory</h3>
+        <p>Because your phone will lose internet in Step 3, decrypt credentials into memory now:</p>
+        <div class="form-group" style="margin-top: 1rem;">
+          <label class="form-label" for="wizardPassphraseInput">Secret Passphrase *</label>
           <div class="input-action-group">
             <input type="password" id="wizardPassphraseInput" class="form-control" placeholder="Enter passphrase to unlock" />
             <div class="group-actions">
-              <button type="button" class="input-action-btn" id="toggleWizardPassBtn" title="Show/Hide">👁️</button>
+              <button type="button" class="input-action-btn" id="toggleWizardPassBtn">👁️</button>
             </div>
           </div>
         </div>
-        <button class="btn btn-warning btn-lg btn-block" id="prepareCredentialsBtn">
-          <span>🔓 Prepare & Load into Memory</span>
-        </button>
-        <div id="prepSuccessBox" class="wizard-instruction-box" style="display: none; border-color: var(--mint-accent); margin-top: 1.25rem;">
-          <div style="color: var(--mint-accent); font-weight: 700; margin-bottom: 0.35rem;">
-            ✓ Credentials Ready in Offline Memory
-          </div>
-          <p style="margin: 0; font-size: 0.9rem;">
-            Hotspot SSID and password have been decrypted into local RAM. You can safely disconnect from Wi-Fi.
-          </p>
+        <button class="btn btn-warning btn-lg btn-block" id="prepareCredentialsBtn">🔓 Prepare & Load into Memory</button>
+        <div id="prepSuccessBox" style="display: none; border: 1px solid var(--mint-accent); padding: 1rem; border-radius: var(--radius-md); margin-top: 1rem; color: var(--mint-accent);">
+          ✓ Credentials Ready in Offline Memory!
         </div>
         <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem;">
           <button class="btn btn-secondary btn-block" id="backToStep1Btn">⬅ Back</button>
@@ -317,166 +487,89 @@
       <!-- Step 3 -->
       <div class="wizard-card" id="wizardStep3" style="display: none;">
         <span class="wizard-step-badge">Step 3 of 4</span>
-        <h3 class="wizard-step-title">Connect to the Bot's Wi-Fi</h3>
-        <div class="wizard-instruction-box">
-          <ol>
-            <li>Open your phone's <strong>Wi-Fi Settings</strong>.</li>
-            <li>Connect to the network: <strong style="color: var(--cyan-primary);">EyesBot-Setup</strong> (No password).</li>
-            <li><strong>Crucial:</strong> When your phone asks <em>"No internet. Switch to mobile data?"</em>, choose <strong>"Stay Connected"</strong> or <strong>"Keep Wi-Fi"</strong>.</li>
-            <li>Return to this browser tab.</li>
-          </ol>
-        </div>
-        <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem;">
+        <h3>Connect to Bot's Wi-Fi</h3>
+        <ol style="padding-left: 1.25rem; margin: 1rem 0; color: var(--text-secondary);">
+          <li>Open phone <strong>Wi-Fi Settings</strong>.</li>
+          <li>Join <strong>EyesBot-Setup</strong> (no password).</li>
+          <li>When asked <em>"No internet. Switch network?"</em>, tap <strong>"Stay Connected"</strong>.</li>
+          <li>Return to this browser tab.</li>
+        </ol>
+        <div style="display: flex; gap: 0.75rem;">
           <button class="btn btn-secondary btn-block" id="backToStep2Btn">⬅ Back</button>
-          <button class="btn btn-primary btn-block btn-lg" id="goToStep4Btn">I'm Connected to EyesBot-Setup ➔</button>
+          <button class="btn btn-primary btn-block btn-lg" id="goToStep4Btn">I'm Connected ➔</button>
         </div>
       </div>
 
       <!-- Step 4 -->
       <div class="wizard-card" id="wizardStep4" style="display: none;">
         <span class="wizard-step-badge">Step 4 of 4</span>
-        <h3 class="wizard-step-title">Send to Bot</h3>
-        <p>
-          Tap the big button below to send your hotspot details directly to <code>http://192.168.4.1/save</code>.
-        </p>
-        <div style="margin: 1.5rem 0;">
-          <button class="btn btn-primary btn-lg btn-block" id="sendToBotFinalBtn" style="font-size: 1.25rem; min-height: 60px;">
-            <span>🚀 Send to Bot (192.168.4.1)</span>
-          </button>
-        </div>
-        <div class="wizard-instruction-box" style="border-left: 4px solid var(--mint-accent);">
-          <strong style="color: var(--mint-accent);">What happens next:</strong>
-          <p style="margin: 0.35rem 0 0;">
-            1. The bot saves your credentials and restarts.<br>
-            2. <strong>Turn on your phone's Portable Hotspot (2.4 GHz)</strong> so the bot connects!
-          </p>
-        </div>
-
-        <!-- Manual Fallback -->
-        <div class="card" style="margin-top: 1.5rem; background: var(--bg-dark); border-color: var(--border-subtle);">
-          <h4 style="font-size: 1rem; margin-bottom: 0.75rem;">📋 Manual Fallback</h4>
-          <label class="form-label" style="font-size: 0.8rem;">Hotspot Name (SSID):</label>
-          <div class="copy-box">
-            <code id="fallbackSsidText">--</code>
-            <button class="btn btn-secondary btn-sm" id="copyFallbackSsidBtn">Copy</button>
-          </div>
-          <label class="form-label" style="font-size: 0.8rem;">Hotspot Password:</label>
-          <div class="copy-box">
-            <code id="fallbackPassText">••••••••</code>
-            <div style="display: flex; gap: 0.35rem;">
-              <button class="btn btn-secondary btn-sm" id="toggleFallbackPassBtn">Show</button>
-              <button class="btn btn-secondary btn-sm" id="copyFallbackPassBtn">Copy</button>
-            </div>
-          </div>
-          <a href="http://192.168.4.1" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-block btn-sm" style="margin-top: 0.5rem;">
-            <span>🌐 Open http://192.168.4.1 Manually</span>
-          </a>
+        <h3>Send to Bot</h3>
+        <p>Tap below to navigate directly to the bot's configuration endpoint:</p>
+        <button class="btn btn-primary btn-lg btn-block" id="sendToBotFinalBtn" style="margin: 1.5rem 0; min-height: 60px;">
+          🚀 Send to Bot (192.168.4.1)
+        </button>
+        <div style="background: var(--bg-dark); border: 1px solid var(--border-subtle); padding: 1rem; border-radius: var(--radius-md);">
+          <h4 style="margin-bottom: 0.5rem;">📋 Manual Fallback</h4>
+          <label class="form-label" style="font-size: 0.8rem;">SSID:</label>
+          <div class="copy-box"><code id="fallbackSsidText">--</code><button class="btn btn-secondary btn-sm" id="copyFallbackSsidBtn">Copy</button></div>
+          <label class="form-label" style="font-size: 0.8rem;">Password:</label>
+          <div class="copy-box"><code id="fallbackPassText">••••••••</code><button class="btn btn-secondary btn-sm" id="copyFallbackPassBtn">Copy</button></div>
+          <a href="http://192.168.4.1" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-block btn-sm" style="margin-top: 0.5rem;">🌐 Open http://192.168.4.1</a>
         </div>
         <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem;">
           <button class="btn btn-secondary btn-block" id="backToStep3Btn">⬅ Back</button>
-          <button class="btn btn-success btn-block" id="finishWizardBtn">✓ Done / Back to Bots</button>
+          <button class="btn btn-success btn-block" id="finishWizardBtn">✓ Done</button>
         </div>
       </div>
     </section>
 
-    <!-- VIEW 4: NOTIFICATION HELP -->
-    <section id="notificationsView" class="view-section" style="display: none;">
-      <div class="card-header" style="margin-bottom: 1.25rem;">
+    <!-- VIEW 4: NOTIFICATIONS -->
+    <section id="notificationsView" style="display: none;">
+      <div class="card-header">
         <div>
           <h2>Desk Bot Notifications</h2>
-          <p>Display live popups on your bot's OLED screen for WhatsApp and Instagram.</p>
+          <p>Trigger alerts for WhatsApp and Instagram on your bot's screen.</p>
         </div>
       </div>
       <div class="card">
-        <h3 class="card-title">1. Your Bot's Local IP Address</h3>
-        <p style="font-size: 0.9rem; margin-bottom: 1rem;">
-          Look at your desk bot's clock screen. The local IP address (e.g. <code>192.168.43.120</code>) is shown at the bottom.
-        </p>
-        <div class="form-group">
-          <label class="form-label" for="notifyBotIpInput">Bot IP Address</label>
-          <div class="input-action-group">
-            <input type="text" id="notifyBotIpInput" class="form-control" placeholder="e.g. 192.168.43.120" />
-            <div class="group-actions">
-              <button type="button" class="btn btn-primary btn-sm" id="saveIpToBotBtn">Save to Bot</button>
-            </div>
-          </div>
-        </div>
+        <h3>1. Bot IP Address</h3>
+        <p style="font-size: 0.9rem; margin: 0.5rem 0;">Found at the bottom of the clock screen.</p>
+        <input type="text" id="notifyBotIpInput" class="form-control" placeholder="e.g. 192.168.43.120" />
       </div>
-
       <div class="card">
-        <h3 class="card-title">2. Generated Webhook URLs</h3>
-        <div style="margin-bottom: 1.25rem;">
-          <strong style="color: #25d366;">WhatsApp Template</strong>
-          <div class="copy-box">
-            <code id="whatsappUrlCode">http://BOT_IP/notify?app=whatsapp&from=NAME&msg=TEXT</code>
-            <button class="btn btn-secondary btn-sm" id="copyWhatsappUrlBtn">Copy</button>
-          </div>
-        </div>
-        <div style="margin-bottom: 1.25rem;">
-          <strong style="color: #e1306c;">Instagram Template</strong>
-          <div class="copy-box">
-            <code id="instagramUrlCode">http://BOT_IP/notify?app=instagram&from=NAME&msg=TEXT</code>
-            <button class="btn btn-secondary btn-sm" id="copyInstagramUrlBtn">Copy</button>
-          </div>
-        </div>
-        <div style="background: var(--bg-dark); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem;">
-          <strong style="font-size: 0.9rem; display: block; margin-bottom: 0.35rem;">MacroDroid Ready-to-Paste URL:</strong>
-          <div class="copy-box">
-            <code id="macrodroidDynamicUrlCode">http://BOT_IP/notify?app=whatsapp&from=[notification_title]&msg=[notification_text]</code>
-            <button class="btn btn-secondary btn-sm" id="copyMacrodroidDynamicUrlBtn">Copy</button>
-          </div>
-        </div>
+        <h3>2. Webhook URLs</h3>
+        <div style="margin: 1rem 0 0.5rem;"><strong>WhatsApp:</strong></div>
+        <div class="copy-box"><code id="whatsappUrlCode">http://BOT_IP/notify?app=whatsapp&from=NAME&msg=TEXT</code><button class="btn btn-secondary btn-sm" id="copyWhatsappUrlBtn">Copy</button></div>
+        <div style="margin: 1rem 0 0.5rem;"><strong>Instagram:</strong></div>
+        <div class="copy-box"><code id="instagramUrlCode">http://BOT_IP/notify?app=instagram&from=NAME&msg=TEXT</code><button class="btn btn-secondary btn-sm" id="copyInstagramUrlBtn">Copy</button></div>
+        <div style="margin: 1rem 0 0.5rem;"><strong>MacroDroid Dynamic Template:</strong></div>
+        <div class="copy-box"><code id="macrodroidDynamicUrlCode">http://BOT_IP/notify?app=whatsapp&from=[notification_title]&msg=[notification_text]</code><button class="btn btn-secondary btn-sm" id="copyMacrodroidDynamicUrlBtn">Copy</button></div>
       </div>
-
-      <!-- Live Test Tool -->
       <div class="card">
-        <h3 class="card-title">3. Test Notification</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
-          <div>
-            <label class="form-label" for="testSenderInput">From / Sender</label>
-            <input type="text" id="testSenderInput" class="form-control" value="Alex" />
-          </div>
-          <div>
-            <label class="form-label" for="testAppSelect">App</label>
-            <select id="testAppSelect" class="form-control">
-              <option value="whatsapp">WhatsApp</option>
-              <option value="instagram">Instagram</option>
-            </select>
-          </div>
+        <h3>3. Test Notification</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin: 0.75rem 0;">
+          <input type="text" id="testSenderInput" class="form-control" value="Alex" />
+          <select id="testAppSelect" class="form-control">
+            <option value="whatsapp">WhatsApp</option>
+            <option value="instagram">Instagram</option>
+          </select>
         </div>
-        <div class="form-group">
-          <label class="form-label" for="testMsgInput">Message Text</label>
-          <input type="text" id="testMsgInput" class="form-control" value="Hello EyesBot! Testing desk notifications." />
-        </div>
-        <button class="btn btn-primary btn-block" id="sendLiveTestBtn">🚀 Send Test to Bot Screen</button>
+        <input type="text" id="testMsgInput" class="form-control" value="Hello EyesBot!" style="margin-bottom: 0.75rem;" />
+        <button class="btn btn-primary btn-block" id="sendLiveTestBtn">🚀 Send Test Notification</button>
       </div>
     </section>
 
-    <!-- VIEW 5: PRIVACY & ACCOUNT -->
-    <section id="accountView" class="view-section" style="display: none;">
-      <div class="card-header" style="margin-bottom: 1.25rem;">
-        <div>
-          <h2>Privacy & Account</h2>
-          <p>Your data ownership and zero-knowledge encryption safeguards.</p>
-        </div>
-      </div>
+    <!-- VIEW 5: ACCOUNT -->
+    <section id="accountView" style="display: none;">
       <div class="card">
-        <h3 class="card-title">User Account</h3>
-        <div style="display: flex; align-items: center; gap: 1rem; margin: 1rem 0;">
-          <img id="accountAvatarImg" class="user-avatar" style="width: 56px; height: 56px;" src="favicon.svg" alt="Avatar" />
-          <div>
-            <div id="accountDisplayName" style="font-size: 1.2rem; font-weight: 700;">Signed-in User</div>
-            <div id="accountEmailText" style="color: var(--text-muted); font-size: 0.9rem;">user@example.com</div>
-          </div>
-        </div>
+        <h3>User Profile</h3>
+        <p id="accountDisplayName" style="font-size: 1.1rem; font-weight: 700; margin-top: 0.5rem;">Signed-in User</p>
+        <p id="accountEmailText" style="margin-bottom: 1rem;">user@example.com</p>
         <button id="accountSignOutBtn" class="btn btn-secondary btn-block">Sign Out</button>
       </div>
-
-      <div class="card" style="border-color: rgba(244, 63, 94, 0.4); background: rgba(244, 63, 94, 0.05);">
-        <h3 class="card-title" style="color: #fb7185;">⚠️ Danger Zone</h3>
-        <p style="font-size: 0.9rem; margin-bottom: 1rem;">
-          Permanently delete all your saved desk bot configurations from Firestore and delete your authentication account.
-        </p>
+      <div class="card" style="border-color: var(--rose-danger); background: rgba(244, 63, 94, 0.05);">
+        <h3 style="color: #fb7185;">⚠️ Danger Zone</h3>
+        <p style="margin: 0.5rem 0 1rem;">Delete all bot profiles and your account permanently.</p>
         <button id="deleteAccountAndDataBtn" class="btn btn-danger btn-block">🗑️ Delete My Data and Account</button>
       </div>
     </section>
@@ -484,79 +577,57 @@
   </main>
 
   <!-- MODALS -->
-  <div class="modal-backdrop" id="botFormModal" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" id="botFormModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 class="modal-title" id="botFormModalTitle">Add New Desk Bot</h3>
+        <h3 id="botFormModalTitle">Add Desk Bot</h3>
         <button type="button" class="modal-close" id="closeBotModalBtn">&times;</button>
       </div>
       <form id="botModalForm">
         <div class="modal-body">
           <input type="hidden" id="botModalEditId" value="" />
           <div class="form-group">
-            <label class="form-label" for="botModalName">Bot Name <span class="req">*</span></label>
+            <label class="form-label">Bot Name *</label>
             <input type="text" id="botModalName" class="form-control" placeholder="e.g. Desk Robot 1" required />
           </div>
           <div class="form-group">
-            <label class="form-label" for="botModalSsid">Phone Hotspot Name (SSID) <span class="req">*</span></label>
+            <label class="form-label">Hotspot Name (SSID) *</label>
             <input type="text" id="botModalSsid" class="form-control" placeholder="e.g. MyPhone-Hotspot" required />
           </div>
           <div class="form-group">
-            <label class="form-label" for="botModalPassword">Hotspot Password <span class="req">*</span></label>
-            <div class="input-action-group">
-              <input type="password" id="botModalPassword" class="form-control" placeholder="Hotspot Wi-Fi password" required minlength="8" />
-              <div class="group-actions">
-                <button type="button" class="input-action-btn" id="toggleBotModalPassBtn">👁️</button>
-              </div>
-            </div>
+            <label class="form-label">Hotspot Password *</label>
+            <input type="password" id="botModalPassword" class="form-control" placeholder="Hotspot Wi-Fi password" required minlength="8" />
           </div>
           <div class="form-group">
-            <label class="form-label" for="botModalPassphrase">Secret Passphrase <span class="req">*</span></label>
-            <div class="input-action-group">
-              <input type="password" id="botModalPassphrase" class="form-control" placeholder="Passphrase to lock/unlock" required minlength="4" />
-              <div class="group-actions">
-                <button type="button" class="input-action-btn" id="toggleBotModalPassphraseBtn">👁️</button>
-              </div>
-            </div>
+            <label class="form-label">Secret Passphrase * (Never Stored)</label>
+            <input type="password" id="botModalPassphrase" class="form-control" placeholder="Passphrase to lock/unlock" required minlength="4" />
           </div>
-          <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label" for="botModalIp">Bot IP Address (Optional)</label>
+          <div class="form-group">
+            <label class="form-label">Bot IP (Optional)</label>
             <input type="text" id="botModalIp" class="form-control" placeholder="e.g. 192.168.43.120" />
           </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" id="cancelBotModalBtn">Cancel</button>
-          <button type="submit" class="btn btn-primary" id="saveBotModalSubmitBtn">🔒 Encrypt & Save Bot</button>
+          <button type="submit" class="btn btn-primary" id="saveBotModalSubmitBtn">🔒 Encrypt & Save</button>
         </div>
       </form>
     </div>
   </div>
 
-  <div class="modal-backdrop" id="decryptModal" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" id="decryptModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 class="modal-title" id="decryptModalTitle">Unlock Hotspot Password</h3>
+        <h3>Unlock Hotspot Password</h3>
         <button type="button" class="modal-close" id="closeDecryptModalBtn">&times;</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
-          <label class="form-label" for="decryptPassphraseInput">Secret Passphrase</label>
-          <div class="input-action-group">
-            <input type="password" id="decryptPassphraseInput" class="form-control" placeholder="Enter secret passphrase" />
-            <div class="group-actions">
-              <button type="button" class="input-action-btn" id="toggleDecryptPassphraseEyeBtn">👁️</button>
-            </div>
-          </div>
+          <label class="form-label">Enter Secret Passphrase</label>
+          <input type="password" id="decryptPassphraseInput" class="form-control" placeholder="Passphrase" />
         </div>
-        <div id="decryptedResultBox" style="display: none; margin-top: 1rem;">
-          <label class="form-label">Plaintext Hotspot Password:</label>
-          <div class="copy-box">
-            <code id="decryptedPasswordText">••••••••</code>
-            <div style="display: flex; gap: 0.35rem;">
-              <button class="btn btn-secondary btn-sm" id="toggleShowDecryptedBtn">Show</button>
-              <button class="btn btn-primary btn-sm" id="copyDecryptedBtn">Copy</button>
-            </div>
-          </div>
+        <div id="decryptedResultBox" style="display: none;">
+          <div class="copy-box"><code id="decryptedPasswordText">••••••••</code><button class="btn btn-primary btn-sm" id="copyDecryptedBtn">Copy</button></div>
         </div>
       </div>
       <div class="modal-footer">
@@ -566,35 +637,418 @@
     </div>
   </div>
 
-  <div class="modal-backdrop" id="deleteAccountModal" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" id="deleteAccountModal">
     <div class="modal-content" style="border-color: var(--rose-danger);">
       <div class="modal-header">
-        <h3 class="modal-title" style="color: #fb7185;">Confirm Account Deletion</h3>
+        <h3 style="color: #fb7185;">Confirm Deletion</h3>
         <button type="button" class="modal-close" id="closeDeleteAccountModalBtn">&times;</button>
       </div>
-      <div class="modal-body">
-        <p>Permanently delete all saved bot profiles and your account from EyesBot Hub?</p>
-      </div>
+      <div class="modal-body"><p>Permanently delete all bot profiles and your account?</p></div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" id="cancelDeleteAccountBtn">Cancel</button>
-        <button type="button" class="btn btn-danger" id="confirmDeleteAccountBtn">Yes, Delete Everything</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteAccountBtn">Yes, Delete</button>
       </div>
     </div>
   </div>
 
-  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+  <div class="toast-container" id="toastContainer"></div>
 
   <footer class="site-footer">
-    <div class="container">
-      <div class="footer-links">
-        <a href="#home" id="footerHomeLink">EyesBot Hub</a>
-        <a href="#notifications" id="footerNotifyLink">Notification Help</a>
-        <a href="#privacy" id="footerPrivacyLink">Privacy Policy</a>
-      </div>
-      <p>Made with 🤖 for ESP32 Desk Bots. Zero-knowledge browser encryption.</p>
-    </div>
+    <p>EyesBot Hub • Zero-Knowledge Web Crypto • Made for ESP32 Bots</p>
   </footer>
 
-  <script type="module" src="app.js"></script>
+  <!-- ======================================================================
+       COMPLETE APPLICATION MODULE SCRIPT
+       ====================================================================== -->
+  <script type="module">
+    // 1. Firebase Credentials
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    function isFirebaseConfigured() {
+      return firebaseConfig.apiKey !== "YOUR_API_KEY" && firebaseConfig.projectId !== "YOUR_PROJECT_ID" && firebaseConfig.apiKey.length > 5;
+    }
+
+    // 2. Web Crypto API (AES-GCM + PBKDF2)
+    function bufferToBase64(buf) {
+      const bytes = new Uint8Array(buf);
+      let bin = '';
+      for (let i = 0; i < bytes.byteLength; i++) bin += String.fromCharCode(bytes[i]);
+      return btoa(bin);
+    }
+    function base64ToBuffer(b64) {
+      const bin = atob(b64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      return bytes;
+    }
+
+    async function deriveAesKey(passphrase, saltBytes) {
+      const enc = new TextEncoder();
+      const keyMat = await crypto.subtle.importKey('raw', enc.encode(passphrase), 'PBKDF2', false, ['deriveKey']);
+      return await crypto.subtle.deriveKey(
+        { name: 'PBKDF2', salt: saltBytes, iterations: 250000, hash: 'SHA-256' },
+        keyMat,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt', 'decrypt']
+      );
+    }
+
+    async function encryptPassword(plain, passphrase) {
+      const salt = crypto.getRandomValues(new Uint8Array(16));
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const key = await deriveAesKey(passphrase, salt);
+      const cipherBuf = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(plain));
+      return { ciphertext: bufferToBase64(cipherBuf), iv: bufferToBase64(iv), salt: bufferToBase64(salt), iterations: 250000 };
+    }
+
+    async function decryptPassword(payload, passphrase) {
+      try {
+        const key = await deriveAesKey(passphrase, base64ToBuffer(payload.salt));
+        const decBuf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: base64ToBuffer(payload.iv) }, key, base64ToBuffer(payload.ciphertext));
+        return new TextDecoder().decode(decBuf);
+      } catch {
+        throw new Error('Incorrect passphrase. Please try again.');
+      }
+    }
+
+    async function copyToClipboard(text) {
+      if (!text) return;
+      if (navigator.clipboard) await navigator.clipboard.writeText(text);
+      else {
+        const t = document.createElement('textarea');
+        t.value = text;
+        document.body.appendChild(t);
+        t.select();
+        document.execCommand('copy');
+        document.body.removeChild(t);
+      }
+      showToast('Copied to clipboard!', 'success');
+    }
+
+    // 3. State Management
+    let auth = null, db = null, currentUser = null, isDemoMode = false;
+    const DEMO_USER = { uid: 'demo_123', displayName: 'Bot Maker (Demo)', email: 'demo@eyesbot.local' };
+    const wizardState = { activeBot: null, decryptedPassword: null };
+    let activeDecryptBot = null;
+
+    async function initApp() {
+      setupEvents();
+      setupBotEyes();
+
+      if (isFirebaseConfigured()) {
+        try {
+          const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js');
+          const { getAuth, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js');
+          const { getFirestore } = await import('https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js');
+          const app = initializeApp(firebaseConfig);
+          auth = getAuth(app);
+          db = getFirestore(app);
+          onAuthStateChanged(auth, (u) => { currentUser = u; updateAuth(u); if (u) loadBots(); else switchView('landing'); });
+        } catch {
+          enableDemo();
+        }
+      } else {
+        document.getElementById('configNoticeContainer').style.display = 'block';
+        enableDemo();
+      }
+    }
+
+    function enableDemo() {
+      isDemoMode = true;
+      currentUser = DEMO_USER;
+      updateAuth(currentUser);
+      if (!localStorage.getItem('eyesbot_demo_bots')) {
+        localStorage.setItem('eyesbot_demo_bots', JSON.stringify([{
+          id: 'b1', botName: 'Desk Robot 01', hotspotName: 'MyPhone-Hotspot', botIp: '192.168.43.120',
+          encryptedPassword: { ciphertext: 'a292837==', iv: '123', salt: '456' }, createdAt: new Date().toISOString()
+        }]));
+      }
+      loadBots();
+    }
+
+    function switchView(name) {
+      const views = ['landingView', 'dashboardView', 'wizardView', 'notificationsView', 'accountView'];
+      views.forEach(id => document.getElementById(id).style.display = (id === name + 'View' || id === name) ? 'block' : 'none');
+      document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === name || (name === 'dashboard' && btn.dataset.tab === 'bots'));
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateAuth(u) {
+      const signedIn = !!u;
+      document.getElementById('headerSignInBtn').style.display = signedIn ? 'none' : 'inline-flex';
+      document.getElementById('userProfileChip').style.display = signedIn ? 'inline-flex' : 'none';
+      document.getElementById('headerSignOutBtn').style.display = signedIn ? 'inline-flex' : 'none';
+      document.getElementById('appNavTabs').style.display = signedIn ? 'flex' : 'none';
+      if (signedIn) {
+        document.getElementById('userNameSpan').textContent = u.displayName || 'Owner';
+        document.getElementById('accountDisplayName').textContent = u.displayName || 'Owner';
+        document.getElementById('accountEmailText').textContent = u.email || '';
+        switchView('dashboard');
+      } else {
+        switchView('landing');
+      }
+    }
+
+    async function loadBots() {
+      const container = document.getElementById('botsContainer');
+      const empty = document.getElementById('botsEmptyState');
+      let bots = [];
+
+      if (isDemoMode || !auth) {
+        bots = JSON.parse(localStorage.getItem('eyesbot_demo_bots') || '[]');
+      } else {
+        try {
+          const { collection, getDocs, query, orderBy } = await import('https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js');
+          const snap = await getDocs(query(collection(db, 'users', currentUser.uid, 'bots'), orderBy('createdAt', 'desc')));
+          bots = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        } catch { bots = []; }
+      }
+
+      container.innerHTML = '';
+      if (!bots.length) { empty.style.display = 'block'; return; }
+      empty.style.display = 'none';
+
+      bots.forEach(b => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+            <h3 style="font-size:1.25rem;">${escapeHtml(b.botName)}</h3>
+            <span class="badge badge-cyan">Hotspot: ${escapeHtml(b.hotspotName)}</span>
+          </div>
+          <div style="margin-bottom:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <span class="badge badge-mint">🔒 Encrypted AES-GCM</span>
+            ${b.botIp ? `<span class="badge badge-amber">IP: ${escapeHtml(b.botIp)}</span>` : ''}
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:0.75rem;">
+            <button class="btn btn-primary btn-wizard">🚀 Send to Bot</button>
+            <button class="btn btn-secondary btn-pass">👁️ View Password</button>
+          </div>
+          <div style="display:flex; justify-content:flex-end; gap:0.5rem; border-top:1px solid var(--border-subtle); padding-top:0.75rem;">
+            <button class="btn btn-secondary btn-sm btn-notify">🔔 Notifications</button>
+            <button class="btn btn-secondary btn-sm btn-edit">✏️ Edit</button>
+            <button class="btn btn-danger btn-sm btn-del">🗑️ Delete</button>
+          </div>
+        `;
+        div.querySelector('.btn-wizard').onclick = () => {
+          wizardState.activeBot = b; wizardState.decryptedPassword = null;
+          document.getElementById('fallbackSsidText').textContent = b.hotspotName;
+          setStep(1); switchView('wizard');
+        };
+        div.querySelector('.btn-pass').onclick = () => {
+          activeDecryptBot = b;
+          document.getElementById('decryptPassphraseInput').value = '';
+          document.getElementById('decryptedResultBox').style.display = 'none';
+          openModal('decryptModal');
+        };
+        div.querySelector('.btn-notify').onclick = () => {
+          if (b.botIp) document.getElementById('notifyBotIpInput').value = b.botIp;
+          updateUrls(); switchView('notifications');
+        };
+        div.querySelector('.btn-edit').onclick = () => {
+          document.getElementById('botModalEditId').value = b.id;
+          document.getElementById('botModalName').value = b.botName;
+          document.getElementById('botModalSsid').value = b.hotspotName;
+          document.getElementById('botModalIp').value = b.botIp || '';
+          openModal('botFormModal');
+        };
+        div.querySelector('.btn-del').onclick = () => deleteBot(b.id);
+        container.appendChild(div);
+      });
+    }
+
+    async function deleteBot(id) {
+      if (!confirm('Delete this bot?')) return;
+      if (isDemoMode || !auth) {
+        let bots = JSON.parse(localStorage.getItem('eyesbot_demo_bots') || '[]');
+        localStorage.setItem('eyesbot_demo_bots', JSON.stringify(bots.filter(b => b.id !== id)));
+      } else {
+        const { doc, deleteDoc } = await import('https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js');
+        await deleteDoc(doc(db, 'users', currentUser.uid, 'bots', id));
+      }
+      loadBots(); showToast('Bot deleted.', 'success');
+    }
+
+    function setStep(num) {
+      [1, 2, 3, 4].forEach(s => {
+        document.getElementById(`wizardStep${s}`).style.display = s === num ? 'block' : 'none';
+        const pill = document.getElementById(`stepPill${s}`);
+        pill.classList.toggle('active', s === num);
+        pill.classList.toggle('completed', s < num);
+      });
+    }
+
+    function updateUrls() {
+      const ip = document.getElementById('notifyBotIpInput').value.trim() || 'BOT_IP';
+      document.getElementById('whatsappUrlCode').textContent = `http://${ip}/notify?app=whatsapp&from=NAME&msg=TEXT`;
+      document.getElementById('instagramUrlCode').textContent = `http://${ip}/notify?app=instagram&from=NAME&msg=TEXT`;
+      document.getElementById('macrodroidDynamicUrlCode').textContent = `http://${ip}/notify?app=whatsapp&from=[notification_title]&msg=[notification_text]`;
+    }
+
+    function setupEvents() {
+      document.getElementById('brandLogoBtn').onclick = (e) => { e.preventDefault(); if (currentUser) switchView('dashboard'); else switchView('landing'); };
+      document.getElementById('googleSignInHeroBtn').onclick = async () => {
+        if (isDemoMode && !auth) { updateAuth(DEMO_USER); showToast('Signed in (Demo Mode)!', 'success'); return; }
+        const { signInWithPopup, GoogleAuthProvider } = await import('https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js');
+        await signInWithPopup(auth, new GoogleAuthProvider());
+      };
+      document.getElementById('headerSignInBtn').onclick = () => document.getElementById('googleSignInHeroBtn').click();
+      document.getElementById('tryDemoHeroBtn').onclick = () => { enableDemo(); showToast('Demo Mode active!', 'success'); };
+      document.getElementById('headerSignOutBtn').onclick = () => { currentUser = null; updateAuth(null); };
+      document.getElementById('accountSignOutBtn').onclick = () => document.getElementById('headerSignOutBtn').click();
+
+      document.querySelectorAll('.nav-tab-btn').forEach(b => b.onclick = () => switchView(b.dataset.tab === 'bots' ? 'dashboard' : b.dataset.tab));
+
+      document.getElementById('openAddBotModalBtn').onclick = () => {
+        document.getElementById('botModalEditId').value = '';
+        document.getElementById('botModalForm').reset();
+        openModal('botFormModal');
+      };
+      document.getElementById('emptyStateAddBotBtn').onclick = () => document.getElementById('openAddBotModalBtn').click();
+      document.getElementById('closeBotModalBtn').onclick = () => closeModal('botFormModal');
+      document.getElementById('cancelBotModalBtn').onclick = () => closeModal('botFormModal');
+
+      document.getElementById('botModalForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const editId = document.getElementById('botModalEditId').value;
+        const botName = document.getElementById('botModalName').value;
+        const hotspotName = document.getElementById('botModalSsid').value;
+        const pass = document.getElementById('botModalPassword').value;
+        const passphrase = document.getElementById('botModalPassphrase').value;
+        const botIp = document.getElementById('botModalIp').value;
+
+        const enc = await encryptPassword(pass, passphrase);
+        const data = { botName, hotspotName, encryptedPassword: enc, botIp };
+
+        if (isDemoMode || !auth) {
+          let bots = JSON.parse(localStorage.getItem('eyesbot_demo_bots') || '[]');
+          if (editId) bots = bots.map(b => b.id === editId ? { ...b, ...data } : b);
+          else bots.unshift({ id: 'b_' + Date.now(), ...data, createdAt: new Date().toISOString() });
+          localStorage.setItem('eyesbot_demo_bots', JSON.stringify(bots));
+        } else {
+          const { collection, doc, setDoc, addDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js');
+          if (editId) await setDoc(doc(db, 'users', currentUser.uid, 'bots', editId), { ...data, updatedAt: serverTimestamp() }, { merge: true });
+          else await addDoc(collection(db, 'users', currentUser.uid, 'bots'), { ...data, createdAt: serverTimestamp() });
+        }
+        closeModal('botFormModal'); loadBots(); showToast('Bot encrypted & saved!', 'success');
+      };
+
+      document.getElementById('closeDecryptModalBtn').onclick = () => closeModal('decryptModal');
+      document.getElementById('closeDecryptActionBtn').onclick = () => closeModal('decryptModal');
+      document.getElementById('submitDecryptBtn').onclick = async () => {
+        try {
+          const plain = await decryptPassword(activeDecryptBot.encryptedPassword, document.getElementById('decryptPassphraseInput').value);
+          const t = document.getElementById('decryptedPasswordText');
+          t.textContent = plain;
+          document.getElementById('decryptedResultBox').style.display = 'block';
+        } catch (err) { showToast(err.message, 'error'); }
+      };
+      document.getElementById('copyDecryptedBtn').onclick = () => copyToClipboard(document.getElementById('decryptedPasswordText').textContent);
+
+      // Wizard steps
+      document.getElementById('goToStep2Btn').onclick = () => setStep(2);
+      document.getElementById('backToStep1Btn').onclick = () => setStep(1);
+      document.getElementById('prepareCredentialsBtn').onclick = async () => {
+        try {
+          const plain = await decryptPassword(wizardState.activeBot.encryptedPassword, document.getElementById('wizardPassphraseInput').value);
+          wizardState.decryptedPassword = plain;
+          document.getElementById('fallbackPassText').textContent = plain;
+          document.getElementById('prepSuccessBox').style.display = 'block';
+          document.getElementById('goToStep3Btn').disabled = false;
+          showToast('Credentials ready in memory!', 'success');
+        } catch (err) { showToast(err.message, 'error'); }
+      };
+      document.getElementById('goToStep3Btn').onclick = () => setStep(3);
+      document.getElementById('backToStep2Btn').onclick = () => setStep(2);
+      document.getElementById('goToStep4Btn').onclick = () => setStep(4);
+      document.getElementById('backToStep3Btn').onclick = () => setStep(3);
+
+      // Requirement 4: Top-level navigation to ESP32
+      document.getElementById('sendToBotFinalBtn').onclick = () => {
+        const s = wizardState.activeBot.hotspotName;
+        const p = wizardState.decryptedPassword;
+        window.location.href = `http://192.168.4.1/save?s=${encodeURIComponent(s)}&p=${encodeURIComponent(p)}`;
+      };
+      document.getElementById('copyFallbackSsidBtn').onclick = () => copyToClipboard(document.getElementById('fallbackSsidText').textContent);
+      document.getElementById('copyFallbackPassBtn').onclick = () => copyToClipboard(document.getElementById('fallbackPassText').textContent);
+      document.getElementById('finishWizardBtn').onclick = () => switchView('dashboard');
+
+      // Notifications
+      document.getElementById('notifyBotIpInput').oninput = updateUrls;
+      document.getElementById('copyWhatsappUrlBtn').onclick = () => copyToClipboard(document.getElementById('whatsappUrlCode').textContent);
+      document.getElementById('copyInstagramUrlBtn').onclick = () => copyToClipboard(document.getElementById('instagramUrlCode').textContent);
+      document.getElementById('copyMacrodroidDynamicUrlBtn').onclick = () => copyToClipboard(document.getElementById('macrodroidDynamicUrlCode').textContent);
+      document.getElementById('sendLiveTestBtn').onclick = () => {
+        const ip = document.getElementById('notifyBotIpInput').value.trim();
+        if (!ip) { showToast('Enter IP first.', 'error'); return; }
+        const app = document.getElementById('testAppSelect').value;
+        const from = document.getElementById('testSenderInput').value;
+        const msg = document.getElementById('testMsgInput').value;
+        window.open(`http://${ip}/notify?app=${encodeURIComponent(app)}&from=${encodeURIComponent(from)}&msg=${encodeURIComponent(msg)}`, '_blank');
+      };
+
+      document.getElementById('deleteAccountAndDataBtn').onclick = () => openModal('deleteAccountModal');
+      document.getElementById('closeDeleteAccountModalBtn').onclick = () => closeModal('deleteAccountModal');
+      document.getElementById('cancelDeleteAccountBtn').onclick = () => closeModal('deleteAccountModal');
+      document.getElementById('confirmDeleteAccountBtn').onclick = () => {
+        localStorage.clear(); closeModal('deleteAccountModal'); currentUser = null; updateAuth(null); showToast('Data cleared.', 'success');
+      };
+      document.getElementById('dismissDemoBannerBtn').onclick = () => document.getElementById('configNoticeContainer').style.display = 'none';
+    }
+
+    function setupBotEyes() {
+      const hero = document.getElementById('heroBotFace');
+      const l = document.getElementById('svgEyeLeft');
+      const r = document.getElementById('svgEyeRight');
+      const modes = [
+        { name: 'Happy', color: '#10b981', h: '24', y: '76', wink: false },
+        { name: 'Setup', color: '#f59e0b', h: '46', y: '66', wink: false },
+        { name: 'Wink', color: '#00f0ff', h: '46', y: '66', wink: true },
+        { name: 'Normal', color: '#00f0ff', h: '46', y: '66', wink: false }
+      ];
+      let i = 0;
+      hero.onclick = () => {
+        i = (i + 1) % modes.length;
+        const m = modes[i];
+        l.setAttribute('fill', m.color);
+        r.setAttribute('fill', m.color);
+        if (m.wink) {
+          r.setAttribute('height', '6'); r.setAttribute('y', '86');
+          l.setAttribute('height', '46'); l.setAttribute('y', '66');
+        } else {
+          l.setAttribute('height', m.h); l.setAttribute('y', m.y);
+          r.setAttribute('height', m.h); r.setAttribute('y', m.y);
+        }
+        showToast(`BEEP BOOP! ${m.name} 🤖`, 'success');
+      };
+    }
+
+    function openModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+    function showToast(msg, type = 'info') {
+      const c = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      t.className = `toast ${type === 'success' ? 'toast-success' : 'toast-error'}`;
+      t.innerHTML = `<span>${type === 'success' ? '✓' : '⚠️'}</span><span>${escapeHtml(msg)}</span>`;
+      c.appendChild(t);
+      requestAnimationFrame(() => t.classList.add('show'));
+      setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3500);
+    }
+    function escapeHtml(s) {
+      return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    initApp();
+  </script>
 </body>
 </html>
