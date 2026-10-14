@@ -1,27 +1,1304 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <title>EyesBot Hub - Desk Bot WiFi & Notification Companion</title>
 
-  <!-- Content Security Policy -->
-  <meta http-equiv="Content-Security-Policy" content="
-    default-src 'self' http://192.168.4.1;
-    script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com;
-    style-src 'self' 'unsafe-inline';
-    font-src 'self' data:;
-    connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com http://192.168.4.1 http://192.168.*;
-    img-src 'self' data: https://lh3.googleusercontent.com https://*.googleusercontent.com;
-    manifest-src 'self';
-  ">
+  <!-- Clean, compliant Content Security Policy -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https:; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com http://192.168.4.1 http://192.168.*; img-src 'self' data: https: https://lh3.googleusercontent.com; manifest-src 'self';">
 
-  <!-- PWA & Theme Meta Tags (Relative Paths) -->
+  <!-- PWA & Theme Meta Tags -->
   <meta name="theme-color" content="#0d1117">
   <meta name="description" content="Manage your ESP32 desk bot Wi-Fi hotspot details safely with client-side encryption and push notifications.">
-  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
-  <link rel="manifest" href="./manifest.json">
-  <link rel="stylesheet" href="./style.css">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Embedded Core Stylesheet: Guarantees 100% beautiful dark mode rendering even if external CSS is delayed or blocked -->
+  <style>
+/* ==========================================================================
+   EyesBot Hub - Mobile-First Responsive Stylesheet
+   Dark Theme | Cute Robot Branding | Touch-Friendly UI
+   ========================================================================== */
+
+:root {
+  /* Color Palette */
+  --bg-dark: #0a0e17;
+  --bg-card: #121824;
+  --bg-card-hover: #182232;
+  --bg-input: #1a2230;
+  --bg-elevated: #1e2838;
+  
+  --border-subtle: #243044;
+  --border-bright: #3b4d6a;
+  --border-focus: #00f0ff;
+
+  --text-primary: #f0f6fc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  --cyan-primary: #00f0ff;
+  --cyan-glow: rgba(0, 240, 255, 0.35);
+  --blue-primary: #3b82f6;
+  --mint-accent: #10b981;
+  --mint-glow: rgba(16, 185, 129, 0.3);
+  --amber-warning: #f59e0b;
+  --amber-glow: rgba(245, 158, 11, 0.3);
+  --rose-danger: #f43f5e;
+  --rose-glow: rgba(244, 63, 94, 0.3);
+
+  /* Typography */
+  --font-main: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Touch Targets & Spacing */
+  --touch-target-min: 48px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Reset & Box Sizing */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 40%);
+  background-attachment: fixed;
+}
+
+/* Typography Helpers */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+p {
+  color: var(--text-secondary);
+}
+
+a {
+  color: var(--cyan-primary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+code, pre {
+  font-family: var(--font-mono);
+}
+
+/* Layout Containers */
+.container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* ==========================================================================
+   Header & Navigation
+   ========================================================================== */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background-color: rgba(10, 14, 23, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 0.75rem 0;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-decoration: none;
+  user-select: none;
+}
+
+.brand:hover {
+  text-decoration: none;
+}
+
+.brand-title-accent {
+  color: var(--cyan-primary);
+  text-shadow: 0 0 12px var(--cyan-glow);
+}
+
+/* Mini Header Robot Face */
+.header-bot-face {
+  width: 38px;
+  height: 38px;
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  border: 2px solid #334155;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  position: relative;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.header-bot-eye {
+  width: 7px;
+  height: 12px;
+  background-color: var(--cyan-primary);
+  border-radius: 4px;
+  box-shadow: 0 0 8px var(--cyan-primary);
+  animation: eyeBlink 4s infinite;
+}
+
+.header-bot-eye.right {
+  animation-delay: 0.05s;
+}
+
+/* User & Auth Section in Header */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.user-profile-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  padding: 0.25rem 0.75rem 0.25rem 0.3rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  max-width: 170px;
+}
+
+.user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid var(--cyan-primary);
+}
+
+.user-avatar-placeholder {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--cyan-primary);
+  color: var(--bg-dark);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+}
+
+.user-name-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* App Nav Tabs */
+.app-nav-tabs {
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.5rem 0;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 1.25rem;
+  scrollbar-width: none;
+}
+
+.app-nav-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.nav-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius-full);
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.nav-tab-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-card);
+}
+
+.nav-tab-btn.active {
+  color: var(--cyan-primary);
+  background: rgba(0, 240, 255, 0.1);
+  border-color: rgba(0, 240, 255, 0.3);
+}
+
+/* ==========================================================================
+   Notice Banners (Demo Mode & Info)
+   ========================================================================== */
+.demo-banner {
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.15), rgba(59, 130, 246, 0.15));
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1.15rem;
+  margin: 1rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.88rem;
+}
+
+.demo-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #fbbf24;
+}
+
+.demo-banner-content span.icon {
+  font-size: 1.3rem;
+}
+
+.demo-banner-text strong {
+  display: block;
+  color: #fff;
+}
+
+.demo-banner-text p {
+  color: #cbd5e1;
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+/* ==========================================================================
+   Cute Robot Face & Eye Animations
+   ========================================================================== */
+.robot-hero-card {
+  background: linear-gradient(180deg, #151f2e, #0d141e);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  margin: 1.5rem 0 2rem;
+}
+
+.robot-hero-card::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle, var(--cyan-glow) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Interactive Desk Bot Screen */
+.bot-face-stage {
+  display: inline-block;
+  position: relative;
+  margin: 0 auto 1.5rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.bot-chassis {
+  width: 170px;
+  height: 140px;
+  background: linear-gradient(145deg, #26354a, #131d2a);
+  border: 3px solid #3b4d6a;
+  border-radius: 36px;
+  padding: 12px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  transition: transform var(--transition-normal);
+}
+
+.bot-chassis:hover {
+  transform: translateY(-3px) scale(1.02);
+}
+
+.bot-antenna {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 18px;
+  background: #475569;
+  border-radius: 4px;
+}
+
+.bot-antenna-light {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 14px;
+  background: var(--cyan-primary);
+  border-radius: 50%;
+  box-shadow: 0 0 14px var(--cyan-primary);
+  animation: antennaPulse 2s infinite ease-in-out;
+}
+
+.bot-screen {
+  width: 100%;
+  height: 100%;
+  background: #090e15;
+  border-radius: 24px;
+  border: 2px solid #04070b;
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Scanline Overlay for retro OLED vibe */
+.bot-screen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15) 0px,
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+}
+
+/* Expressive Robot Eyes */
+.robot-eye {
+  width: 32px;
+  height: 48px;
+  background-color: var(--cyan-primary);
+  border-radius: 16px;
+  box-shadow: 0 0 16px var(--cyan-primary), 0 0 32px rgba(0, 240, 255, 0.4);
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: eyeBlink 4.5s infinite;
+}
+
+.robot-eye::after {
+  content: '';
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  width: 8px;
+  height: 8px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  opacity: 0.95;
+}
+
+/* Eye Expression Variations */
+.bot-face-stage.happy .robot-eye {
+  height: 22px;
+  border-radius: 16px 16px 0 0;
+  background: var(--mint-accent);
+  box-shadow: 0 0 18px var(--mint-accent);
+}
+
+.bot-face-stage.setup-mode .robot-eye {
+  background-color: var(--amber-warning);
+  box-shadow: 0 0 18px var(--amber-warning);
+}
+
+.bot-face-stage.wink .robot-eye.right {
+  height: 6px;
+  border-radius: 3px;
+  transform: translateY(12px);
+}
+
+/* Robot Face Cheeks */
+.bot-cheek {
+  position: absolute;
+  bottom: 12px;
+  width: 10px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ff4d79;
+  opacity: 0.55;
+  box-shadow: 0 0 6px #ff4d79;
+}
+
+.bot-cheek.left { left: 14px; }
+.bot-cheek.right { right: 14px; }
+
+/* Bot Face Animations */
+@keyframes eyeBlink {
+  0%, 94%, 98%, 100% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0.08);
+  }
+}
+
+@keyframes antennaPulse {
+  0%, 100% {
+    opacity: 0.7;
+    box-shadow: 0 0 8px var(--cyan-primary);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 18px var(--cyan-primary), 0 0 25px var(--cyan-primary);
+  }
+}
+
+/* ==========================================================================
+   Buttons & Interactive Elements (Touch-Friendly)
+   ========================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: var(--touch-target-min);
+  padding: 0.75rem 1.4rem;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all var(--transition-fast);
+  user-select: none;
+  text-decoration: none;
+}
+
+.btn:hover {
+  text-decoration: none;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Primary Button (Neon Cyan) */
+.btn-primary {
+  background: linear-gradient(135deg, #00f0ff, #00b4d8);
+  color: #061019;
+  box-shadow: 0 4px 14px var(--cyan-glow);
+  font-weight: 700;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #33f3ff, #00c4ea);
+  box-shadow: 0 6px 20px rgba(0, 240, 255, 0.5);
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-bright);
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-elevated);
+  border-color: var(--cyan-primary);
+  color: #ffffff;
+}
+
+/* Success Button */
+.btn-success {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #ffffff;
+  box-shadow: 0 4px 14px var(--mint-glow);
+}
+
+.btn-success:hover {
+  background: linear-gradient(135deg, #34d399, #10b981);
+}
+
+/* Warning Button */
+.btn-warning {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #0d1117;
+  font-weight: 700;
+  box-shadow: 0 4px 14px var(--amber-glow);
+}
+
+.btn-warning:hover {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+}
+
+/* Danger Button */
+.btn-danger {
+  background-color: rgba(244, 63, 94, 0.15);
+  color: #fb7185;
+  border: 1px solid rgba(244, 63, 94, 0.35);
+}
+
+.btn-danger:hover {
+  background-color: var(--rose-danger);
+  color: #ffffff;
+  border-color: var(--rose-danger);
+  box-shadow: 0 4px 14px var(--rose-glow);
+}
+
+/* Block & Large Buttons */
+.btn-block {
+  width: 100%;
+}
+
+.btn-lg {
+  min-height: 54px;
+  font-size: 1.1rem;
+  padding: 0.95rem 1.75rem;
+  border-radius: var(--radius-lg);
+}
+
+.btn-sm {
+  min-height: 38px;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-sm);
+}
+
+/* Icon Only Button */
+.btn-icon {
+  width: var(--touch-target-min);
+  height: var(--touch-target-min);
+  padding: 0;
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+
+.btn-icon:hover {
+  color: var(--text-primary);
+  border-color: var(--border-bright);
+}
+
+/* Google Sign-in Button */
+.btn-google {
+  background-color: #ffffff;
+  color: #1f2937;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.btn-google:hover {
+  background-color: #f3f4f6;
+  color: #111827;
+}
+
+.google-icon-svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Form Controls & Inputs
+   ========================================================================== */
+.form-group {
+  margin-bottom: 1.25rem;
+  text-align: left;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.45rem;
+}
+
+.form-label span.req {
+  color: var(--rose-danger);
+}
+
+.form-label span.hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-left: 0.35rem;
+}
+
+.form-control {
+  width: 100%;
+  min-height: var(--touch-target-min);
+  background-color: var(--bg-input);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.2);
+}
+
+.form-control::placeholder {
+  color: var(--text-muted);
+}
+
+/* Password & Copy Input Group */
+.input-action-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-action-group .form-control {
+  padding-right: 5rem;
+}
+
+.input-action-group .group-actions {
+  position: absolute;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.input-action-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  min-width: 36px;
+  min-height: 36px;
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.input-action-btn:hover {
+  color: var(--cyan-primary);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.form-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 0.35rem;
+}
+
+/* ==========================================================================
+   Cards, Badges & Lists
+   ========================================================================== */
+.card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.card:hover {
+  border-color: var(--border-bright);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  gap: 0.75rem;
+}
+
+.card-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.badge-cyan {
+  background: rgba(0, 240, 255, 0.12);
+  color: var(--cyan-primary);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+}
+
+.badge-mint {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-amber {
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.badge-gray {
+  background: rgba(148, 163, 184, 0.12);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+/* Bot Card Specifics */
+.bot-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.bot-card-top {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.15rem;
+}
+
+.bot-card-avatar {
+  width: 52px;
+  height: 52px;
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  border: 2px solid var(--cyan-primary);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px var(--cyan-glow);
+}
+
+.bot-card-eye {
+  width: 8px;
+  height: 18px;
+  background-color: var(--cyan-primary);
+  border-radius: 4px;
+}
+
+.bot-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.bot-card-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bot-meta-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.bot-actions-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+.bot-actions-secondary {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  border: 2px dashed var(--border-subtle);
+  border-radius: var(--radius-lg);
+  margin: 1.5rem 0;
+}
+
+.empty-state-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.empty-state-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+/* ==========================================================================
+   Wizard Stepper & Flow
+   ========================================================================== */
+.wizard-header {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.stepper-progress {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  margin: 1.5rem 0 2rem;
+  padding: 0 1rem;
+}
+
+.stepper-progress::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 2rem;
+  right: 2rem;
+  height: 3px;
+  background: var(--border-subtle);
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+.step-indicator {
+  position: relative;
+  z-index: 2;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 2px solid var(--border-bright);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: all var(--transition-normal);
+}
+
+.step-indicator.active {
+  background: var(--cyan-primary);
+  color: #050d15;
+  border-color: var(--cyan-primary);
+  box-shadow: 0 0 16px var(--cyan-primary);
+  transform: scale(1.15);
+}
+
+.step-indicator.completed {
+  background: var(--mint-accent);
+  color: #ffffff;
+  border-color: var(--mint-accent);
+}
+
+.wizard-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.wizard-step-badge {
+  display: inline-block;
+  background: rgba(0, 240, 255, 0.12);
+  color: var(--cyan-primary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-full);
+  margin-bottom: 0.75rem;
+}
+
+.wizard-step-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+}
+
+.wizard-instruction-box {
+  background: var(--bg-dark);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.15rem;
+  margin: 1.25rem 0;
+  font-size: 0.95rem;
+}
+
+.wizard-instruction-box ul,
+.wizard-instruction-box ol {
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.wizard-instruction-box li {
+  margin-bottom: 0.4rem;
+  color: var(--text-secondary);
+}
+
+/* Fallback & Copy Boxes */
+.copy-box {
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  word-break: break-all;
+}
+
+.copy-box code {
+  color: var(--cyan-primary);
+  font-size: 0.9rem;
+}
+
+/* ==========================================================================
+   Modals & Dialogs
+   ========================================================================== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(5, 8, 14, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-normal);
+}
+
+.modal-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7);
+  transform: translateY(20px) scale(0.96);
+  transition: transform var(--transition-normal);
+}
+
+.modal-backdrop.open .modal-content {
+  transform: translateY(0) scale(1);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1.5rem;
+  line-height: 1;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+}
+
+.modal-close:hover {
+  color: var(--text-primary);
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border-subtle);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+/* ==========================================================================
+   Toasts & Alerts
+   ========================================================================== */
+.toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 90%;
+  max-width: 400px;
+  pointer-events: none;
+}
+
+.toast {
+  background: #182234;
+  border: 1px solid var(--border-bright);
+  color: var(--text-primary);
+  padding: 0.85rem 1.25rem;
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+  font-size: 0.92rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.25s ease;
+  pointer-events: auto;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast.toast-success {
+  border-color: rgba(16, 185, 129, 0.6);
+  background: #0f2720;
+}
+
+.toast.toast-error {
+  border-color: rgba(244, 63, 94, 0.6);
+  background: #2a1219;
+}
+
+/* ==========================================================================
+   Feature Highlights & Landing Page
+   ========================================================================== */
+.features-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  margin: 2rem 0;
+}
+
+@media (min-width: 640px) {
+  .features-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.feature-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.4rem;
+  text-align: center;
+}
+
+.feature-box .feat-icon {
+  font-size: 2.2rem;
+  margin-bottom: 0.85rem;
+  display: inline-block;
+}
+
+.feature-box h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.4rem;
+}
+
+.feature-box p {
+  font-size: 0.88rem;
+}
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+.site-footer {
+  margin-top: auto;
+  border-top: 1px solid var(--border-subtle);
+  padding: 2rem 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 1.25rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   Responsive Adjustments
+   ========================================================================== */
+@media (max-width: 480px) {
+  .bot-actions-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .stepper-progress {
+    padding: 0;
+  }
+
+  .step-indicator {
+    width: 36px;
+    height: 36px;
+    font-size: 0.85rem;
+  }
+
+  .wizard-card {
+    padding: 1.25rem 1rem;
+  }
+}
+
+
+    /* Embedded SVG Robot Eye Specific Animations */
+    @keyframes svgEyeBlink {
+      0%, 93%, 97%, 100% {
+        transform: scaleY(1);
+      }
+      95% {
+        transform: scaleY(0.1);
+      }
+    }
+    .svg-eye {
+      transform-origin: 50% 55%;
+      animation: svgEyeBlink 4.2s infinite ease-in-out;
+    }
+    .antenna-light {
+      animation: antennaPulse 2s infinite ease-in-out;
+    }
+    .bot-face-stage {
+      transition: transform 0.25s ease;
+    }
+    .bot-face-stage:hover {
+      transform: translateY(-3px) scale(1.03);
+    }
+    .google-icon-svg {
+      width: 20px !important;
+      height: 20px !important;
+      min-width: 20px !important;
+      min-height: 20px !important;
+      max-width: 20px !important;
+      max-height: 20px !important;
+      display: inline-block;
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
+  </style>
 </head>
 <body>
 
@@ -45,7 +1322,7 @@
 
         <!-- Signed-in profile container -->
         <div id="userProfileChip" class="user-profile-badge" style="display: none;">
-          <img id="userAvatarImg" class="user-avatar" alt="User avatar" src="./favicon.svg" />
+          <img id="userAvatarImg" class="user-avatar" alt="User avatar" src="favicon.svg" />
           <span id="userNameSpan" class="user-name-text">User</span>
         </div>
 
@@ -94,19 +1371,50 @@
          ==================================================================== -->
     <section id="landingView" class="view-section">
       <div class="robot-hero-card">
-        <!-- Interactive Robot Face with Glowing Eyes -->
-        <div class="bot-face-stage" id="heroBotFace" title="Tap to make the bot wink!">
-          <div class="bot-antenna">
-            <div class="bot-antenna-light"></div>
-          </div>
-          <div class="bot-chassis">
-            <div class="bot-screen">
-              <div class="robot-eye left"></div>
-              <div class="robot-eye right"></div>
-              <div class="bot-cheek left"></div>
-              <div class="bot-cheek right"></div>
-            </div>
-          </div>
+        <!-- Standalone SVG Robot Face with Expressive Glowing Eyes -->
+        <div class="bot-face-stage" id="heroBotFace" title="Tap to make the bot react!">
+          <svg id="robotHeroSvg" viewBox="0 0 200 160" width="180" height="144" style="display: block; margin: 0 auto; filter: drop-shadow(0 12px 28px rgba(0,0,0,0.6));">
+            <defs>
+              <radialGradient id="screenGradHero" cx="50%" cy="40%" r="60%">
+                <stop offset="0%" stop-color="#1c2533" />
+                <stop offset="100%" stop-color="#0a0f16" />
+              </radialGradient>
+              <linearGradient id="bodyGradHero" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#2c3e50" />
+                <stop offset="100%" stop-color="#16202c" />
+              </linearGradient>
+              <filter id="neonGlowHero" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="4" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+
+            <!-- Antenna -->
+            <rect x="96" y="8" width="8" height="20" rx="4" fill="#475569" />
+            <circle cx="100" cy="8" r="7" fill="#00f0ff" filter="url(#neonGlowHero)" class="antenna-light" />
+
+            <!-- Head Body -->
+            <rect x="20" y="24" width="160" height="126" rx="36" fill="url(#bodyGradHero)" stroke="#3a4b60" stroke-width="3" />
+
+            <!-- OLED Screen Face -->
+            <rect x="34" y="38" width="132" height="98" rx="26" fill="url(#screenGradHero)" stroke="#0d1117" stroke-width="2" />
+
+            <!-- Glowing Robot Eyes -->
+            <g filter="url(#neonGlowHero)" class="bot-eyes-group">
+              <rect id="svgEyeLeft" x="55" y="66" width="30" height="46" rx="14" fill="#00f0ff" class="svg-eye" />
+              <rect id="svgEyeRight" x="115" y="66" width="30" height="46" rx="14" fill="#00f0ff" class="svg-eye" />
+              <!-- Pupil Highlights -->
+              <circle id="svgHighlightLeft" cx="63" cy="76" r="5" fill="#ffffff" />
+              <circle id="svgHighlightRight" cx="123" cy="76" r="5" fill="#ffffff" />
+            </g>
+
+            <!-- Cute Rosy Cheeks -->
+            <circle cx="48" cy="116" r="6" fill="#ff4d79" opacity="0.6" />
+            <circle cx="152" cy="116" r="6" fill="#ff4d79" opacity="0.6" />
+          </svg>
         </div>
 
         <h1 style="font-size: 1.85rem; margin-bottom: 0.5rem;">EyesBot Hub</h1>
@@ -117,7 +1425,7 @@
         <!-- Big Touch-Friendly Action Buttons -->
         <div style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 360px; margin: 0 auto;">
           <button id="googleSignInHeroBtn" class="btn btn-google btn-lg btn-block">
-            <svg class="google-icon-svg" viewBox="0 0 24 24">
+            <svg class="google-icon-svg" viewBox="0 0 24 24" width="20" height="20" style="width: 20px; height: 20px; min-width: 20px; flex-shrink: 0;">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
               <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
@@ -540,7 +1848,7 @@
       <div class="card">
         <h3 class="card-title">User Account</h3>
         <div style="display: flex; align-items: center; gap: 1rem; margin: 1rem 0;">
-          <img id="accountAvatarImg" class="user-avatar" style="width: 56px; height: 56px;" src="./favicon.svg" alt="Avatar" />
+          <img id="accountAvatarImg" class="user-avatar" style="width: 56px; height: 56px;" src="favicon.svg" alt="Avatar" />
           <div>
             <div id="accountDisplayName" style="font-size: 1.2rem; font-weight: 700;">Signed-in User</div>
             <div id="accountEmailText" style="color: var(--text-muted); font-size: 0.9rem;">user@example.com</div>
@@ -632,7 +1940,7 @@
             <label class="form-label" for="botModalIp">
               Bot IP Address <span class="hint">(Optional)</span>
             </label>
-            <input type="text" id="botModalIp" class="form-control" placeholder="e.g. 192.168.43.120" pattern="^([0-9]{1,3}\.){3}[0-9]{1,3}$" />
+            <input type="text" id="botModalIp" class="form-control" placeholder="e.g. 192.168.43.120" pattern="^([0-9]{1,3}.){3}[0-9]{1,3}$" />
             <div class="form-hint">Found at the bottom of the bot's clock screen.</div>
           </div>
         </div>
@@ -739,6 +2047,6 @@
   </footer>
 
   <!-- Main ES Module Script (Relative Path) -->
-  <script type="module" src="./app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
